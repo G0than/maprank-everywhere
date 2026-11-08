@@ -38,7 +38,7 @@
 
 1. **Download / Clone this repo**
    ```bash
-   git clone https://github.com/YOUR_USERNAME/maprank-everywhere.git
+   git clone https://github.com/G0tham/maprank-everywhere.git
    ```
 
 2. **Open Chrome Extensions**
@@ -193,7 +193,7 @@ MIT — see [LICENSE](LICENSE)
 
 Built with ❤️ for Local SEO professionals & GBP agency owners.
 
-**[⭐ Star this repo](https://github.com/YOUR_USERNAME/maprank-everywhere)** if it saved you time!
+**[⭐ Star this repo](https://github.com/G0tham/maprank-everywhere)** if it saved you time!
 
 </div>
 
