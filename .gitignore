@@ -19,3 +19,4 @@ secrets.json
 # Build artifacts
 *.crx
 *.pem
+

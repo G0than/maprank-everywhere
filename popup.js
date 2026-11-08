@@ -102,8 +102,8 @@ document.addEventListener("DOMContentLoaded", () => {
 
   // 1. Run 100-Point Audit
   document.getElementById("btn-run-audit")?.addEventListener("click", async () => {
-    const biz = document.getElementById("audit-biz").value.trim() || "Bhardwaj Photo Studio";
-    const cat = document.getElementById("audit-cat").value.trim() || "Photography Studio";
+    const biz = document.getElementById("audit-biz").value.trim() || "My Business";
+    const cat = document.getElementById("audit-cat").value.trim() || "Local Business";
     const city = document.getElementById("audit-city").value.trim() || "Local Area";
     const resBox = document.getElementById("audit-results");
 
@@ -133,7 +133,7 @@ Output:
   // 2. Generate Client Pitch ($750/mo retainer)
   document.getElementById("btn-gen-pitch")?.addEventListener("click", async () => {
     const biz = document.getElementById("audit-biz").value.trim() || "Local Business Client";
-    const cat = document.getElementById("audit-cat").value.trim() || "Photography Studio";
+    const cat = document.getElementById("audit-cat").value.trim() || "Local Business";
     const city = document.getElementById("audit-city").value.trim() || "Local Market";
     const resBox = document.getElementById("audit-results");
 
@@ -160,7 +160,7 @@ Include:
 
   // 3. Generate Review Replies
   document.getElementById("btn-gen-reply")?.addEventListener("click", async () => {
-    const biz = document.getElementById("reply-biz").value.trim() || "Bhardwaj Photo Studio";
+    const biz = document.getElementById("reply-biz").value.trim() || "My Business";
     const stars = document.getElementById("reply-stars").value;
     const text = document.getElementById("reply-text").value.trim();
     const resBox = document.getElementById("reply-results");
@@ -194,7 +194,7 @@ Provide:
 
   // 4. Generate 4-Week Post Calendar
   document.getElementById("btn-gen-posts")?.addEventListener("click", async () => {
-    const biz = document.getElementById("posts-biz").value.trim() || "Bhardwaj Photo Studio";
+    const biz = document.getElementById("posts-biz").value.trim() || "My Business";
     const promo = document.getElementById("posts-promo").value.trim() || "Seasonal Service Discount";
     const resBox = document.getElementById("posts-results");
 
@@ -222,8 +222,8 @@ For each week (Week 1 to Week 4), provide:
 
   // 5. Pre-Seed Google Q&A Pairs (Course Strategy)
   document.getElementById("btn-gen-qa")?.addEventListener("click", async () => {
-    const biz = document.getElementById("qa-biz").value.trim() || "Bhardwaj Photo Studio";
-    const cat = document.getElementById("qa-cat").value.trim() || "Photography Studio";
+    const biz = document.getElementById("qa-biz").value.trim() || "My Business";
+    const cat = document.getElementById("qa-cat").value.trim() || "Local Business";
     const city = document.getElementById("qa-city").value.trim() || "Local City";
     const resBox = document.getElementById("qa-results");
 
@@ -254,7 +254,7 @@ Make sure keywords appear in BOTH the question and the owner answer for conversa
 
   // 6. Suspension Risk Audit
   document.getElementById("btn-audit-suspension")?.addEventListener("click", async () => {
-    const biz = document.getElementById("policy-biz").value.trim() || "Bhardwaj Photo Studio";
+    const biz = document.getElementById("policy-biz").value.trim() || "My Business";
     const resBox = document.getElementById("policy-results");
 
     resBox.style.display = "block";
@@ -280,7 +280,7 @@ Analyze:
 
   // Repurpose to Social Media (Multi-Platform Content Engine)
   document.getElementById("btn-repurpose-social")?.addEventListener("click", async () => {
-    const biz = document.getElementById("social-biz").value.trim() || "Bhardwaj Photo Studio";
+    const biz = document.getElementById("social-biz").value.trim() || "My Business";
     const win = document.getElementById("social-win").value.trim() || "Best photo studio in town! Delivered beautiful wedding photos and frames.";
     const resBox = document.getElementById("social-results");
 
@@ -307,7 +307,7 @@ Output:
 
   // Competitor Ad Library Teardown
   document.getElementById("btn-spy-ads")?.addEventListener("click", async () => {
-    const biz = document.getElementById("social-biz").value.trim() || "Bhardwaj Photo Studio";
+    const biz = document.getElementById("social-biz").value.trim() || "My Business";
     const resBox = document.getElementById("social-results");
 
     resBox.style.display = "block";
@@ -332,7 +332,7 @@ Provide:
 
   // 7. Fake Review Removal Dispute Ticket
   document.getElementById("btn-gen-dispute")?.addEventListener("click", async () => {
-    const biz = document.getElementById("policy-biz").value.trim() || "Bhardwaj Photo Studio";
+    const biz = document.getElementById("policy-biz").value.trim() || "My Business";
     const rev = document.getElementById("policy-review").value.trim() || "Terrible service, completely fake and rude staff!";
     const resBox = document.getElementById("policy-results");
 
@@ -375,9 +375,9 @@ Grounds:
 
   // 8. 1-Person Agency & Client Acquisition Handlers
   document.getElementById("btn-agency-coldemail")?.addEventListener("click", async () => {
-    const biz = document.getElementById("agency-biz").value.trim() || "Bhardwaj Photo Studio";
-    const cat = document.getElementById("agency-cat").value.trim() || "Photography Studio";
-    const loc = document.getElementById("agency-loc").value.trim() || "Delhi";
+    const biz = document.getElementById("agency-biz").value.trim() || "My Business";
+    const cat = document.getElementById("agency-cat").value.trim() || "Local Business";
+    const loc = document.getElementById("agency-loc").value.trim() || "Local City";
     const gap = document.getElementById("agency-gap").value.trim() || "Missing secondary categories & 15 reviews vs competitor's 180";
     const resBox = document.getElementById("agency-results");
 
@@ -406,8 +406,8 @@ Write:
   });
 
   document.getElementById("btn-agency-upwork")?.addEventListener("click", async () => {
-    const biz = document.getElementById("agency-biz").value.trim() || "Bhardwaj Photo Studio";
-    const cat = document.getElementById("agency-cat").value.trim() || "Photography Studio";
+    const biz = document.getElementById("agency-biz").value.trim() || "My Business";
+    const cat = document.getElementById("agency-cat").value.trim() || "Local Business";
     const gap = document.getElementById("agency-gap").value.trim() || "Competitors dominating the Map Pack";
     const resBox = document.getElementById("agency-results");
 
@@ -429,8 +429,8 @@ Write:
   });
 
   document.getElementById("btn-agency-pricing")?.addEventListener("click", async () => {
-    const biz = document.getElementById("agency-biz").value.trim() || "Bhardwaj Photo Studio";
-    const cat = document.getElementById("agency-cat").value.trim() || "Photography Studio";
+    const biz = document.getElementById("agency-biz").value.trim() || "My Business";
+    const cat = document.getElementById("agency-cat").value.trim() || "Local Business";
     const resBox = document.getElementById("agency-results");
 
     resBox.style.display = "block";
@@ -451,8 +451,8 @@ Detail exact deliverables and expected business ROI for each.`;
   });
 
   document.getElementById("btn-agency-closer")?.addEventListener("click", async () => {
-    const biz = document.getElementById("agency-biz").value.trim() || "Bhardwaj Photo Studio";
-    const cat = document.getElementById("agency-cat").value.trim() || "Photography Studio";
+    const biz = document.getElementById("agency-biz").value.trim() || "My Business";
+    const cat = document.getElementById("agency-cat").value.trim() || "Local Business";
     const resBox = document.getElementById("agency-results");
 
     resBox.style.display = "block";
@@ -472,7 +472,7 @@ Detail exact deliverables and expected business ROI for each.`;
   });
 
   // 9. Autonomous AI Agent OS Handlers
-  const DEFAULT_MEMORY = "Never mention passport photos or cheap rates. Brand tone: luxury, warm, emotional, authoritative. Priority keywords: best wedding photographer in Delhi NCR, pre-wedding shoot Delhi, candid cinematic wedding film.";
+  const DEFAULT_MEMORY = "Brand tone: professional, warm, authoritative. Priority: highlight positive reviews, quality service, and local presence.";
 
   if (typeof chrome !== "undefined" && chrome.storage && chrome.storage.sync) {
     chrome.storage.sync.get(["globalAgentMemory"], (res) => {
@@ -506,7 +506,7 @@ Detail exact deliverables and expected business ROI for each.`;
   });
 
   document.getElementById("btn-agentos-run")?.addEventListener("click", async () => {
-    const biz = document.getElementById("agentos-biz").value.trim() || "Bhardwaj Photo Studio";
+    const biz = document.getElementById("agentos-biz").value.trim() || "My Business";
     const data = document.getElementById("agentos-data").value.trim() || "Rating: 4.8, 42 reviews, missing website, last post 45 days ago";
     const mem = document.getElementById("agentos-memory-text")?.value.trim() || "";
     const resBox = document.getElementById("agentos-results");
@@ -537,9 +537,9 @@ Perform the loop:
 
   // 10. 4S Proof of Work & Showcase Handlers
   document.getElementById("btn-fours-teardown")?.addEventListener("click", async () => {
-    const biz = document.getElementById("fours-biz").value.trim() || "Bhardwaj Photo Studio";
-    const niche = document.getElementById("fours-niche").value.trim() || "Wedding & Commercial Photography";
-    const city = document.getElementById("fours-city").value.trim() || "Delhi";
+    const biz = document.getElementById("fours-biz").value.trim() || "My Business";
+    const niche = document.getElementById("fours-niche").value.trim() || "Local Services";
+    const city = document.getElementById("fours-city").value.trim() || "Local City";
     const resBox = document.getElementById("fours-results");
 
     resBox.style.display = "block";
@@ -567,7 +567,7 @@ This document serves as undeniable proof of competence to win high-ticket client
   });
 
   document.getElementById("btn-fours-blueprint")?.addEventListener("click", async () => {
-    const niche = document.getElementById("fours-niche").value.trim() || "Wedding & Commercial Photography";
+    const niche = document.getElementById("fours-niche").value.trim() || "Local Services";
     const resBox = document.getElementById("fours-results");
 
     resBox.style.display = "block";
