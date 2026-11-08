@@ -1,40 +1,131 @@
-// MapRank Everywhere Extension - Popup Controller with AI Skills
+// MapRank Everywhere Extension - Professional Popup Controller
 
-const DEFAULT_KEY = ""; // Set your OpenRouter API key below
-
-async function callOpenRouter(prompt, system = "You are an elite Google Business Profile Local SEO expert.") {
-  let key = DEFAULT_KEY;
+async function getStoredAiConfig() {
   if (typeof chrome !== "undefined" && chrome.storage && chrome.storage.sync) {
-    const data = await chrome.storage.sync.get(["openrouterKey"]);
-    if (data.openrouterKey) key = data.openrouterKey;
-  } else {
-    key = localStorage.getItem("openrouterKey") || DEFAULT_KEY;
+    const data = await chrome.storage.sync.get(["openrouterKey", "openrouterModel"]);
+    return {
+      key: data.openrouterKey || "",
+      model: data.openrouterModel || "google/gemini-2.5-flash",
+    };
+  }
+  return {
+    key: localStorage.getItem("openrouterKey") || "",
+    model: localStorage.getItem("openrouterModel") || "google/gemini-2.5-flash",
+  };
+}
+
+async function callOpenRouter(prompt, system = "You are an elite Google Business Profile Local SEO expert.", maxTokens = 800) {
+  const config = await getStoredAiConfig();
+
+  if (!config.key) {
+    return `⚠️ **OpenRouter API Key Required**\n\nPlease go to the **⚙️ Settings** tab and enter your OpenRouter API key.\n\nYou can grab a free key at [openrouter.ai/keys](https://openrouter.ai/keys).`;
   }
 
-  const res = await fetch("https://openrouter.ai/api/v1/chat/completions", {
-    method: "POST",
-    headers: {
-      Authorization: `Bearer ${key}`,
-      "Content-Type": "application/json",
-      "HTTP-Referer": "https://maprank-everywhere.local",
-      "X-Title": "MapRank Everywhere Extension",
-    },
-    body: JSON.stringify({
-      model: "google/gemini-2.5-flash",
-      max_tokens: 800,
-      messages: [
-        { role: "system", content: system },
-        { role: "user", content: prompt },
-      ],
-    }),
+  try {
+    const res = await fetch("https://openrouter.ai/api/v1/chat/completions", {
+      method: "POST",
+      headers: {
+        Authorization: `Bearer ${config.key}`,
+        "Content-Type": "application/json",
+        "HTTP-Referer": "https://maprank-everywhere.local",
+        "X-Title": "MapRank Everywhere Extension",
+      },
+      body: JSON.stringify({
+        model: config.model,
+        max_tokens: maxTokens,
+        messages: [
+          { role: "system", content: system },
+          { role: "user", content: prompt },
+        ],
+      }),
+    });
+
+    if (!res.ok) {
+      const errData = await res.json().catch(() => ({}));
+      const errMsg = errData?.error?.message || `HTTP ${res.status}`;
+      return `⚠️ **AI Service Error (${errMsg})**\n\nPlease verify your API key and quota in the **⚙️ Settings** tab.`;
+    }
+
+    const json = await res.json();
+    return json.choices?.[0]?.message?.content || "No response received from AI service.";
+  } catch (err) {
+    return `⚠️ **Network Connection Error**\n\n${err.message}. Please check your internet connection.`;
+  }
+}
+
+// Lightweight Markdown Formatter
+function parseMarkdown(md) {
+  if (!md) return "";
+  let html = md
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;")
+    .replace(/^### (.*$)/gim, "<h3>$1</h3>")
+    .replace(/^## (.*$)/gim, "<h2>$1</h2>")
+    .replace(/^# (.*$)/gim, "<h1>$1</h1>")
+    .replace(/\*\*\*(.*?)\*\*\*/gim, "<strong><em>$1</em></strong>")
+    .replace(/\*\*(.*?)\*\*/gim, "<strong>$1</strong>")
+    .replace(/\*(.*?)\*/gim, "<em>$1</em>")
+    .replace(/`([^`]+)`/gim, "<code>$1</code>")
+    .replace(/^\s*[-*]\s+(.*$)/gim, "<li>$1</li>")
+    .replace(/^\s*\d+\.\s+(.*$)/gim, "<li>$1</li>")
+    .replace(/\[([^\]]+)\]\(([^)]+)\)/gim, '<a href="$2" target="_blank" style="color:#ea580c;">$1</a>')
+    .replace(/\n\n+/g, "<br><br>")
+    .replace(/\n/g, "<br>");
+  return html;
+}
+
+function showLoading(boxElement, msg = "Generating AI intelligence...") {
+  boxElement.style.display = "block";
+  boxElement.innerHTML = `
+    <div class="loading-state">
+      <div class="spinner"></div>
+      <span>${msg}</span>
+    </div>
+  `;
+}
+
+function renderResult(boxElement, markdownContent, title = "Generated Output") {
+  boxElement.style.display = "block";
+  const htmlContent = parseMarkdown(markdownContent);
+
+  boxElement.innerHTML = `
+    <div class="result-toolbar">
+      <span>${title}</span>
+      <div class="result-actions">
+        <button class="action-btn copy-btn" title="Copy text to clipboard">📋 Copy</button>
+        <button class="action-btn download-btn" title="Export as Markdown document">💾 Export .md</button>
+      </div>
+    </div>
+    <div class="result-content">${htmlContent}</div>
+  `;
+
+  const copyBtn = boxElement.querySelector(".copy-btn");
+  copyBtn.addEventListener("click", () => {
+    navigator.clipboard.writeText(markdownContent).then(() => {
+      copyBtn.innerText = "✓ Copied!";
+      copyBtn.classList.add("copied");
+      setTimeout(() => {
+        copyBtn.innerText = "📋 Copy";
+        copyBtn.classList.remove("copied");
+      }, 2000);
+    });
   });
 
-  const json = await res.json();
-  return json.choices?.[0]?.message?.content || "No response received from AI service.";
+  const downloadBtn = boxElement.querySelector(".download-btn");
+  downloadBtn.addEventListener("click", () => {
+    const blob = new Blob([markdownContent], { type: "text/markdown;charset=utf-8" });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = `${title.toLowerCase().replace(/[^a-z0-9]/g, "_")}_${Date.now()}.md`;
+    a.click();
+    URL.revokeObjectURL(url);
+  });
 }
 
 document.addEventListener("DOMContentLoaded", () => {
-  // Tab Switching
+  // 1. Tab Navigation
   const tabBtns = document.querySelectorAll(".tab-btn");
   const tabContents = document.querySelectorAll(".tab-content");
 
@@ -48,542 +139,527 @@ document.addEventListener("DOMContentLoaded", () => {
     });
   });
 
-  // Settings Load
-  if (typeof chrome !== "undefined" && chrome.storage && chrome.storage.sync) {
-    chrome.storage.sync.get(["syncUrl", "syncToken", "openrouterKey"], (data) => {
-      if (data.syncUrl) document.getElementById("server-url").value = data.syncUrl;
-      if (data.syncToken) document.getElementById("api-token").value = data.syncToken;
-      document.getElementById("openrouter-key").value = data.openrouterKey || DEFAULT_KEY;
-    });
-  } else {
-    document.getElementById("server-url").value = localStorage.getItem("syncUrl") || "http://localhost:8080";
-    document.getElementById("api-token").value = localStorage.getItem("syncToken") || "";
-    document.getElementById("openrouter-key").value = localStorage.getItem("openrouterKey") || DEFAULT_KEY;
-  }
+  // 2. Settings Load & Status Check
+  async function loadSettings() {
+    const config = await getStoredAiConfig();
+    const keyInput = document.getElementById("openrouter-key");
+    const modelSelect = document.getElementById("openrouter-model");
+    const statusText = document.getElementById("status-text");
+    const statusDot = document.getElementById("status-dot");
 
-  // Save Settings
+    if (keyInput) keyInput.value = config.key;
+    if (modelSelect && config.model) modelSelect.value = config.model;
+
+    if (config.key) {
+      if (statusText) statusText.innerText = "AI Ready";
+      if (statusDot) {
+        statusDot.className = "live-dot";
+      }
+    } else {
+      if (statusText) statusText.innerText = "Key Missing";
+      if (statusDot) {
+        statusDot.className = "live-dot warn";
+      }
+    }
+
+    if (typeof chrome !== "undefined" && chrome.storage && chrome.storage.sync) {
+      chrome.storage.sync.get(["syncUrl", "syncToken"], (data) => {
+        if (data.syncUrl) document.getElementById("server-url").value = data.syncUrl;
+        if (data.syncToken) document.getElementById("api-token").value = data.syncToken;
+      });
+    }
+  }
+  loadSettings();
+
+  // 3. Auto-Detect Active Google Maps Tab & Pre-fill inputs
+  function syncWithActiveMapsTab() {
+    if (typeof chrome === "undefined" || !chrome.tabs || !chrome.tabs.query) return;
+
+    chrome.tabs.query({ active: true, currentWindow: true }, (tabs) => {
+      const activeTab = tabs?.[0];
+      if (!activeTab || !activeTab.id) return;
+
+      const isMaps = activeTab.url && (activeTab.url.includes("google.com/maps") || activeTab.url.includes("google.com/search"));
+      const banner = document.getElementById("active-tab-banner");
+      const label = document.getElementById("active-biz-label");
+
+      if (!isMaps) {
+        if (banner) banner.style.display = "none";
+        return;
+      }
+
+      chrome.tabs.sendMessage(activeTab.id, { action: "getActiveBusiness" }, (response) => {
+        if (chrome.runtime.lastError || !response || !response.data) {
+          if (banner) {
+            banner.style.display = "flex";
+            if (label) label.innerText = "Maps tab detected: open any business to auto-populate";
+          }
+          return;
+        }
+
+        const d = response.data;
+        if (!d.title) return;
+
+        if (banner) {
+          banner.style.display = "flex";
+          if (label) label.innerHTML = `Connected: <strong>${d.title}</strong> (${d.primaryCategory || "Business"})`;
+        }
+
+        const autoFields = [
+          { id: "audit-biz", val: d.title },
+          { id: "audit-cat", val: d.primaryCategory },
+          { id: "audit-city", val: d.address || "" },
+          { id: "agency-biz", val: d.title },
+          { id: "agency-cat", val: d.primaryCategory },
+          { id: "agency-loc", val: d.address || "" },
+          { id: "agentos-biz", val: d.title },
+          { id: "fours-biz", val: d.title },
+          { id: "fours-niche", val: d.primaryCategory },
+          { id: "fours-city", val: d.address || "" },
+          { id: "reply-biz", val: d.title },
+          { id: "posts-biz", val: d.title },
+          { id: "social-biz", val: d.title },
+          { id: "qa-biz", val: d.title },
+          { id: "qa-cat", val: d.primaryCategory },
+          { id: "qa-city", val: d.address || "" },
+          { id: "policy-biz", val: d.title },
+        ];
+
+        autoFields.forEach(({ id, val }) => {
+          const el = document.getElementById(id);
+          if (el && (!el.value || el.value === "My Business" || el.value === "Local Business")) {
+            if (val) el.value = val;
+          }
+        });
+      });
+    });
+  }
+  syncWithActiveMapsTab();
+
+  document.getElementById("btn-sync-active")?.addEventListener("click", () => {
+    syncWithActiveMapsTab();
+  });
+
+  // 4. Save Settings
   document.getElementById("save-settings-btn")?.addEventListener("click", () => {
+    const key = document.getElementById("openrouter-key").value.trim();
+    const model = document.getElementById("openrouter-model").value;
     const url = document.getElementById("server-url").value.trim();
     const token = document.getElementById("api-token").value.trim();
-    const openrouterKey = document.getElementById("openrouter-key").value.trim();
     const msg = document.getElementById("settings-msg");
 
     if (typeof chrome !== "undefined" && chrome.storage && chrome.storage.sync) {
-      chrome.storage.sync.set({ syncUrl: url, syncToken: token, openrouterKey }, () => {
-        msg.innerText = "Configuration saved successfully!";
-        msg.style.color = "#137333";
+      chrome.storage.sync.set({ openrouterKey: key, openrouterModel: model, syncUrl: url, syncToken: token }, () => {
+        msg.innerText = "✓ Configuration saved securely.";
+        msg.style.color = "#16a34a";
+        loadSettings();
         setTimeout(() => (msg.innerText = ""), 2500);
       });
     } else {
+      localStorage.setItem("openrouterKey", key);
+      localStorage.setItem("openrouterModel", model);
       localStorage.setItem("syncUrl", url);
       localStorage.setItem("syncToken", token);
-      localStorage.setItem("openrouterKey", openrouterKey);
-      msg.innerText = "Configuration saved successfully!";
+      msg.innerText = "✓ Configuration saved locally.";
+      msg.style.color = "#16a34a";
+      loadSettings();
+      setTimeout(() => (msg.innerText = ""), 2500);
     }
   });
 
-  // Test Server Connection
-  document.getElementById("test-conn-btn")?.addEventListener("click", async () => {
-    const url = document.getElementById("server-url").value.trim() || "http://localhost:8080";
-    const token = document.getElementById("api-token").value.trim();
-    const msg = document.getElementById("settings-msg");
-    msg.innerText = "Pinging sync server...";
-    try {
-      const res = await fetch(`${url}/api/v1/healthcheck`, {
-        headers: token ? { Authorization: `Bearer ${token}` } : {},
-      });
-      msg.innerText = res.ok ? "Connected to Sync Server!" : `Server returned status ${res.status}`;
-      msg.style.color = res.ok ? "#137333" : "#b06000";
-    } catch {
-      msg.innerText = "Server not reachable.";
-      msg.style.color = "#d93025";
-    }
-  });
-
-  // 1. Run 100-Point Audit
+  // 5. Run 100-Point Audit
   document.getElementById("btn-run-audit")?.addEventListener("click", async () => {
-    const biz = document.getElementById("audit-biz").value.trim() || "My Business";
-    const cat = document.getElementById("audit-cat").value.trim() || "Local Business";
+    const biz = document.getElementById("audit-biz").value.trim() || "Local Business";
+    const cat = document.getElementById("audit-cat").value.trim() || "Local Services";
     const city = document.getElementById("audit-city").value.trim() || "Local Area";
     const resBox = document.getElementById("audit-results");
 
-    resBox.style.display = "block";
-    resBox.innerText = `Analyzing ${biz} with Gemini 2.5 Flash...`;
+    showLoading(resBox, `Running 100-Point Audit for ${biz}...`);
 
-    const prompt = `Run a comprehensive 100-Point Local SEO & Google Business Profile audit for:
-Business: ${biz}
+    const prompt = `Perform a comprehensive 100-point Google Business Profile (GBP) audit for:
+Business Name: ${biz}
 Category: ${cat}
-City: ${city}
+Location: ${city}
 
-Output:
-1. Health Score (0-100)
-2. 4 Missing High-Impact Secondary Categories
-3. High-Intent Keywords for Description & Services
-4. Optimized 750-Character Description
-5. 3 Action Steps to Rank in Local 3-Pack`;
+Audit the listing across these 5 pillars:
+1. Category Optimization & Map Pack Relevancy (Primary vs Secondary Categories)
+2. Review Velocity, Rating & Semantic Keyword Sentiment
+3. Listing Completeness & Citation Signal Strength
+4. Local Search Grid Prominence vs Competitors
+5. High-Impact Quick Wins to Reach Top 3 Map Pack in 30 Days
 
-    try {
-      const result = await callOpenRouter(prompt);
-      resBox.innerText = result;
-    } catch (e) {
-      resBox.innerText = "Error running audit: " + e.message;
-    }
+Provide an actionable report with bullet points and clear priority ratings.`;
+
+    const result = await callOpenRouter(prompt, "You are an elite Google Business Profile Local SEO auditor.");
+    renderResult(resBox, result, `GBP Audit — ${biz}`);
   });
 
-  // 2. Generate Client Pitch ($750/mo retainer)
+  // 6. Generate Client Pitch ($750/mo retainer)
   document.getElementById("btn-gen-pitch")?.addEventListener("click", async () => {
-    const biz = document.getElementById("audit-biz").value.trim() || "Local Business Client";
+    const biz = document.getElementById("audit-biz").value.trim() || "Target Prospect";
     const cat = document.getElementById("audit-cat").value.trim() || "Local Business";
     const city = document.getElementById("audit-city").value.trim() || "Local Market";
     const resBox = document.getElementById("audit-results");
 
-    resBox.style.display = "block";
-    resBox.innerText = `Drafting $750/mo Retainer Pitch Proposal for ${biz}...`;
+    showLoading(resBox, `Drafting $750/mo Retainer Proposal for ${biz}...`);
 
     const prompt = `Write a high-converting Local SEO agency client proposal for:
-Client: ${biz} (${cat} in ${city})
-Retainer: $750/month
+Business: ${biz}
+Niche: ${cat}
+City: ${city}
+Monthly Retainer: $750/month
 
 Include:
-- Executive Summary (Lost calls & directions to competitors)
-- 30-Day Quick Win Sprint (Categories, Review QR system, Weekly Posts)
-- Expected Deliverables & Measurable ROI
-- Closing Call to Action`;
+1. Executive Problem Summary (Lost calls/leads to map pack competitors)
+2. 30-Day Quick Win Action Plan (Categories, Q&A, review acceleration)
+3. Month 2-3 Growth Strategy (Geo-grid prominence, weekly posts)
+4. Deliverables Matrix & Expected Return on Investment`;
 
-    try {
-      const result = await callOpenRouter(prompt);
-      resBox.innerText = result;
-    } catch (e) {
-      resBox.innerText = "Error drafting pitch: " + e.message;
-    }
+    const result = await callOpenRouter(prompt, "You are a master local SEO agency director.");
+    renderResult(resBox, result, `Agency Proposal — ${biz}`);
   });
 
-  // 3. Generate Review Replies
+  // 7. Review Replies
   document.getElementById("btn-gen-reply")?.addEventListener("click", async () => {
-    const biz = document.getElementById("reply-biz").value.trim() || "My Business";
+    const biz = document.getElementById("reply-biz").value.trim() || "Our Business";
     const stars = document.getElementById("reply-stars").value;
     const text = document.getElementById("reply-text").value.trim();
     const resBox = document.getElementById("reply-results");
 
     if (!text) {
-      resBox.style.display = "block";
-      resBox.innerText = "Please paste a customer review first.";
+      renderResult(resBox, "⚠️ Please paste customer review text to generate replies.", "Input Required");
       return;
     }
 
-    resBox.style.display = "block";
-    resBox.innerText = "Drafting 3 calibrated replies...";
+    showLoading(resBox, "Drafting 3 calibrated review replies...");
 
     const prompt = `Generate 3 distinct, professional Google Review replies for:
 Business: ${biz}
 Rating: ${stars} Stars
-Review: "${text}"
+Customer Review: "${text}"
 
 Provide:
-1. Friendly & Warm (Appreciation + keyword injection)
-2. Concise & Professional
-3. Engagement & Next Visit / De-escalation (if low rating)`;
+1. Warm & Grateful (Natural keyword & location integration)
+2. Professional & Concise
+3. Retention-Focused (Inviting back for next visit or VIP service)`;
 
-    try {
-      const result = await callOpenRouter(prompt);
-      resBox.innerText = result;
-    } catch (e) {
-      resBox.innerText = "Error: " + e.message;
-    }
+    const result = await callOpenRouter(prompt, "You are a reputation management expert.");
+    renderResult(resBox, result, `Review Replies — ${stars} Stars`);
   });
 
-  // 4. Generate 4-Week Post Calendar
+  // 8. 4-Week Post Calendar
   document.getElementById("btn-gen-posts")?.addEventListener("click", async () => {
     const biz = document.getElementById("posts-biz").value.trim() || "My Business";
-    const promo = document.getElementById("posts-promo").value.trim() || "Seasonal Service Discount";
+    const promo = document.getElementById("posts-promo").value.trim() || "Seasonal Service Promotion";
     const resBox = document.getElementById("posts-results");
 
-    resBox.style.display = "block";
-    resBox.innerText = `Generating 4-Week Post Calendar for ${biz}...`;
+    showLoading(resBox, `Drafting 4-week post calendar for ${biz}...`);
 
-    const prompt = `Create a 4-Week Google Posts content calendar for:
+    const prompt = `Create a high-retention 4-Week Google Business Profile post schedule for:
 Business: ${biz}
-Special Focus: ${promo}
+Special Offer / Angle: ${promo}
 
 For each week (Week 1 to Week 4), provide:
-- Post Type (What's New, Offer, or Event)
-- Hook / Headline
-- Body Copy (100-120 words with local keywords)
-- Recommended CTA Button (Call Now, Book, Learn More)
-- Suggested Photo / Graphic`;
+- Post Theme (Offer, Behind the Scenes, Customer Spotlight, Educational)
+- Full Post Copy (with high-converting CTA & relevant local keywords)
+- Suggested Photo/Visual Type
+- Recommended Call To Action Button (Call Now, Book, Learn More)`;
 
-    try {
-      const result = await callOpenRouter(prompt);
-      resBox.innerText = result;
-    } catch (e) {
-      resBox.innerText = "Error: " + e.message;
-    }
+    const result = await callOpenRouter(prompt, "You are a local business content strategist.");
+    renderResult(resBox, result, `Google Posts Calendar — ${biz}`);
   });
 
-  // 5. Pre-Seed Google Q&A Pairs (Course Strategy)
+  // 9. Pre-Seed Google Q&A Pairs
   document.getElementById("btn-gen-qa")?.addEventListener("click", async () => {
     const biz = document.getElementById("qa-biz").value.trim() || "My Business";
     const cat = document.getElementById("qa-cat").value.trim() || "Local Business";
     const city = document.getElementById("qa-city").value.trim() || "Local City";
     const resBox = document.getElementById("qa-results");
 
-    resBox.style.display = "block";
-    resBox.innerText = `Pre-seeding 5 high-ranking Q&A pairs for ${biz}...`;
+    showLoading(resBox, `Pre-seeding 5 high-ranking Q&A pairs for ${biz}...`);
 
-    const prompt = `Generate 5 high-converting, SEO-optimized Google Q&A pairs for:
+    const prompt = `Generate 5 strategic, geo-targeted Google Maps Q&A pairs for:
 Business: ${biz}
-Category: ${cat}
-City: ${city}
+Primary Category: ${cat}
+Location: ${city}
 
-Cover:
-1. Pricing / Packages & Turnaround time
-2. Booking process & Consultations
-3. Service area & On-location availability
-4. Customization & Deliverables format
-5. Payment methods & Rush requests
+Target:
+- Voice search queries ("Hey Google, who is the top...")
+- High-intent commercial questions (Pricing, appointments, turnaround time)
+- Natural primary and secondary category keyword injection in BOTH the question and owner response`;
 
-Make sure keywords appear in BOTH the question and the owner answer for conversational search.`;
-
-    try {
-      const result = await callOpenRouter(prompt);
-      resBox.innerText = result;
-    } catch (e) {
-      resBox.innerText = "Error: " + e.message;
-    }
+    const result = await callOpenRouter(prompt, "You are a conversational search and local voice SEO architect.");
+    renderResult(resBox, result, `Pre-Seeded Q&A — ${biz}`);
   });
 
-  // 6. Suspension Risk Audit
+  // 10. Suspension Risk Audit
   document.getElementById("btn-audit-suspension")?.addEventListener("click", async () => {
     const biz = document.getElementById("policy-biz").value.trim() || "My Business";
     const resBox = document.getElementById("policy-results");
 
-    resBox.style.display = "block";
-    resBox.innerText = `Auditing suspension risks for "${biz}"...`;
+    showLoading(resBox, `Auditing suspension risks for ${biz}...`);
 
-    const prompt = `Perform a Google Business Profile Policy & Suspension Risk Audit for:
+    const prompt = `Audit the Google Business Profile title and setup for:
 Listing Title: "${biz}"
 
 Analyze:
-1. Name Keyword Stuffing Risk (Is non-legal text/location/phone added?)
-2. Storefront vs SAB risk triggers
-3. Video re-verification likelihood
-4. Suspension Prevention Checklist
-5. Final Risk Score: LOW, MEDIUM, or HIGH risk`;
+1. Title Keyword Stuffing Risk (Violation of Google Guidelines)
+2. Address Type Risk (Residential, P.O. Box, or Co-working space)
+3. Actionable remediation steps to avoid hard/soft suspension`;
 
-    try {
-      const result = await callOpenRouter(prompt);
-      resBox.innerText = result;
-    } catch (e) {
-      resBox.innerText = "Error: " + e.message;
-    }
+    const result = await callOpenRouter(prompt, "You are a former Google Policy and Business Profile compliance auditor.");
+    renderResult(resBox, result, `Suspension Audit — ${biz}`);
   });
 
-  // Repurpose to Social Media (Multi-Platform Content Engine)
+  // 11. Review Dispute Removal Ticket
+  document.getElementById("btn-gen-dispute")?.addEventListener("click", async () => {
+    const biz = document.getElementById("policy-biz").value.trim() || "My Business";
+    const review = document.getElementById("policy-review").value.trim() || "Fake review with zero transaction history.";
+    const resBox = document.getElementById("policy-results");
+
+    showLoading(resBox, "Drafting formal Google Support removal ticket...");
+
+    const prompt = `Draft a formal, policy-cited Google Business Profile review removal ticket for:
+Business: ${biz}
+Violating Review: "${review}"
+
+Cite exact sections of the Google Prohibited and Restricted Content Policy (Conflict of Interest, Harassment, Misinformation, or Off-Topic Content) and formulate a clear legal/policy argument for escalation.`;
+
+    const result = await callOpenRouter(prompt, "You are a Google Policy escalation specialist.");
+    renderResult(resBox, result, `Removal Ticket — ${biz}`);
+  });
+
+  // 12. Social Media Repurposing
   document.getElementById("btn-repurpose-social")?.addEventListener("click", async () => {
     const biz = document.getElementById("social-biz").value.trim() || "My Business";
-    const win = document.getElementById("social-win").value.trim() || "Best photo studio in town! Delivered beautiful wedding photos and frames.";
+    const win = document.getElementById("social-win").value.trim();
     const resBox = document.getElementById("social-results");
 
-    resBox.style.display = "block";
-    resBox.innerText = `Repurposing review into viral social media assets for ${biz}...`;
+    showLoading(resBox, "Repurposing review into multi-platform social assets...");
 
-    const prompt = `Turn this 5-star Google review into a multi-platform social media campaign:
-Business: ${biz}
-Review / Win: "${win}"
+    const prompt = `Transform this customer review for ${biz} into 3 viral social media formats:
+Review: "${win}"
 
-Output:
-1. 30-Second Instagram Reel / TikTok Script (Visual Hook in first 3s, Voiceover story, Call-To-Action)
-2. Facebook / Instagram Carousel Caption (Emotional hook, quote snippet, hashtags)
-3. LinkedIn B2B / Founder Story Angle
-4. Promotional Offer Hook to pair with this post`;
+1. 30-Second Instagram Reel / TikTok Script (Visual cue, hook, retention story, CTA)
+2. 5-Slide Carousel Breakdown (Slide by slide copy with hook)
+3. Meta / Facebook Ad Copy (Pain point, customer proof, compelling offer)`;
 
-    try {
-      const result = await callOpenRouter(prompt);
-      resBox.innerText = result;
-    } catch (e) {
-      resBox.innerText = "Error: " + e.message;
-    }
+    const result = await callOpenRouter(prompt, "You are a direct-response social media content strategist.");
+    renderResult(resBox, result, `Social Assets — ${biz}`);
   });
 
-  // Competitor Ad Library Teardown
+  // 13. Competitor Ad Library Teardown
   document.getElementById("btn-spy-ads")?.addEventListener("click", async () => {
     const biz = document.getElementById("social-biz").value.trim() || "My Business";
     const resBox = document.getElementById("social-results");
 
-    resBox.style.display = "block";
-    resBox.innerText = `Analyzing competitor ad strategies for ${biz}...`;
+    showLoading(resBox, `Generating competitor ad teardown framework for ${biz}...`);
 
-    const prompt = `Perform a Meta Ad Library & Competitor Social Ad Teardown for:
-Business / Niche: ${biz}
+    const prompt = `Generate a high-leverage Meta Ad Library competitor teardown plan for a business like ${biz}:
+1. 3 Top Hook Formats competitors in this niche use to win customers
+2. Creative Angles (UGC vs Clean Studio vs Founder Story)
+3. One Counter-Ad Campaign blueprint to steal market share`;
 
-Provide:
-1. 3 Winning Ad Angles (Problem/Agitation, Social Proof/Case Study, and Irresistible Hook)
-2. Creative Visual Direction (UGC, BTS, Before/After)
-3. Ad Copy & Headline examples
-4. Local Audience Retargeting Strategy`;
-
-    try {
-      const result = await callOpenRouter(prompt);
-      resBox.innerText = result;
-    } catch (e) {
-      resBox.innerText = "Error: " + e.message;
-    }
+    const result = await callOpenRouter(prompt, "You are a master performance marketer.");
+    renderResult(resBox, result, `Competitor Ad Teardown — ${biz}`);
   });
 
-  // 7. Fake Review Removal Dispute Ticket
-  document.getElementById("btn-gen-dispute")?.addEventListener("click", async () => {
-    const biz = document.getElementById("policy-biz").value.trim() || "My Business";
-    const rev = document.getElementById("policy-review").value.trim() || "Terrible service, completely fake and rude staff!";
-    const resBox = document.getElementById("policy-results");
-
-    resBox.style.display = "block";
-    resBox.innerText = "Drafting formal policy dispute ticket for Google Support...";
-
-    const prompt = `Write a formal, policy-backed Google Review Dispute Ticket for Google Business Profile Support:
-Business Name: ${biz}
-Flagged Review: "${rev}"
-
-Grounds:
-- Violates Google's Prohibited and Restricted Content Policy (Misinformation / Conflict of Interest / Fake engagement).
-- Professional tone requesting removal from local map listing.`;
-
-    try {
-      const result = await callOpenRouter(prompt);
-      resBox.innerText = result;
-    } catch (e) {
-      resBox.innerText = "Error: " + e.message;
-    }
-  });
-
-  // 5. Teleport Launch
+  // 14. Maps Teleport
   document.getElementById("teleport-btn")?.addEventListener("click", () => {
-    const q = document.getElementById("teleport-query").value.trim() || "photo studio";
-    const l = document.getElementById("teleport-location").value.trim() || "28.6139, 77.2090";
-
-    let url = `https://www.google.com/maps/search/${encodeURIComponent(q + " in " + l)}`;
-    if (l.includes(",")) {
-      const [lat, lng] = l.split(",").map((s) => s.trim());
-      url = `https://www.google.com/maps/search/${encodeURIComponent(q)}/@${lat},${lng},15z`;
+    const q = document.getElementById("teleport-query").value.trim() || "restaurants near me";
+    const l = document.getElementById("teleport-location").value.trim() || "40.7128, -74.0060";
+    let targetUrl = `https://www.google.com/maps/search/${encodeURIComponent(q)}/@${encodeURIComponent(l.replace(/\s+/g, ""))},14z`;
+    if (!l.includes(",")) {
+      targetUrl = `https://www.google.com/maps/search/${encodeURIComponent(q + " in " + l)}`;
     }
-
-    if (typeof chrome !== "undefined" && chrome.tabs) {
-      chrome.tabs.create({ url });
-    } else {
-      window.open(url, "_blank");
-    }
+    window.open(targetUrl, "_blank");
   });
 
-  // 8. 1-Person Agency & Client Acquisition Handlers
+  // 15. 1-Person Agency Handlers
   document.getElementById("btn-agency-coldemail")?.addEventListener("click", async () => {
-    const biz = document.getElementById("agency-biz").value.trim() || "My Business";
+    const biz = document.getElementById("agency-biz").value.trim() || "Local Business";
     const cat = document.getElementById("agency-cat").value.trim() || "Local Business";
     const loc = document.getElementById("agency-loc").value.trim() || "Local City";
-    const gap = document.getElementById("agency-gap").value.trim() || "Missing secondary categories & 15 reviews vs competitor's 180";
+    const gap = document.getElementById("agency-gap").value.trim() || "Missing secondary categories & lower review count vs #1 competitor";
     const resBox = document.getElementById("agency-results");
 
-    resBox.style.display = "block";
-    resBox.innerText = "Drafting personalized Audit Cold Email...";
+    showLoading(resBox, `Drafting personalized cold email for ${biz}...`);
 
-    const prompt = `You are an elite AI outbound cold email copywriter for local SEO.
-Target Business: ${biz}
-Category: ${cat} in ${loc}
-Observed Bottleneck: ${gap}
+    const prompt = `Write an authentic, zero-fluff cold email to the owner of ${biz} (${cat} in ${loc}):
+Identified Gap: ${gap}
 
-Write:
-1. High-Converting Cold Email (under 100 words):
-   - Subject Line: 2 casual, hyper-targeted variations
-   - Observation Hook: Acknowledge their business and call out their exact ranking bottleneck (${gap})
-   - Frictionless Offer: Free 2-minute video teardown showing exact steps to rank in Top 3 Map Pack
-   - Clean signature
-2. Day 3 Follow-Up: 2-sentence polite bump mentioning a high-intent local search query.`;
+Rules:
+- 3-sentence high-response subject line options
+- Low friction CTA (Offer a 90-second Loom audit breakdown with zero pitch)
+- Sound like a helpful local growth partner, not an automated agency spammer`;
 
-    try {
-      const result = await callOpenRouter(prompt, "You are an elite 1-person agency cold outreach copywriter.");
-      resBox.innerText = result;
-    } catch (e) {
-      resBox.innerText = "Error: " + e.message;
-    }
+    const result = await callOpenRouter(prompt, "You are an elite 1-person agency cold outreach copywriter.");
+    renderResult(resBox, result, `Cold Outreach — ${biz}`);
   });
 
   document.getElementById("btn-agency-upwork")?.addEventListener("click", async () => {
-    const biz = document.getElementById("agency-biz").value.trim() || "My Business";
+    const biz = document.getElementById("agency-biz").value.trim() || "Client";
     const cat = document.getElementById("agency-cat").value.trim() || "Local Business";
     const gap = document.getElementById("agency-gap").value.trim() || "Competitors dominating the Map Pack";
     const resBox = document.getElementById("agency-results");
 
-    resBox.style.display = "block";
-    resBox.innerText = "Writing winning Upwork proposal...";
+    showLoading(resBox, "Drafting winning Upwork proposal...");
 
-    const prompt = `Write a winning Upwork proposal for a local SEO / Google Maps optimization contract for a client in the ${cat} niche (${biz}):
-1. Opening Hook: Reference their ranking struggle (${gap}) directly in the first line.
-2. Proof of Work: Explain taking a similar client from #8 to #2 in 21 days with category alignment & review velocity.
-3. 3-Milestone Execution: Audit & Category fix (Day 1-3), Review Loop & Q&A (Day 4-7), Geo-Grid signals (Day 8-14).
-4. Low friction CTA. Under 180 words.`;
+    const prompt = `Write a winning Upwork proposal for a local SEO / Google Maps contract in the ${cat} niche (${biz}):
+Problem: ${gap}
 
-    try {
-      const result = await callOpenRouter(prompt, "You are an elite Upwork proposal specialist.");
-      resBox.innerText = result;
-    } catch (e) {
-      resBox.innerText = "Error: " + e.message;
-    }
+Structure:
+1. Hook acknowledging their specific struggle
+2. 3-step solution blueprint (Category architecture, Review pacing, Citation cleanup)
+3. Proof of competency and closing question`;
+
+    const result = await callOpenRouter(prompt, "You are an elite Upwork proposal specialist.");
+    renderResult(resBox, result, `Upwork Proposal — ${cat}`);
   });
 
   document.getElementById("btn-agency-pricing")?.addEventListener("click", async () => {
-    const biz = document.getElementById("agency-biz").value.trim() || "My Business";
+    const biz = document.getElementById("agency-biz").value.trim() || "Client";
     const cat = document.getElementById("agency-cat").value.trim() || "Local Business";
     const resBox = document.getElementById("agency-results");
 
-    resBox.style.display = "block";
-    resBox.innerText = "Calculating 3-tier retainer packages...";
+    showLoading(resBox, "Calculating 3-tier monthly retainer packages...");
 
     const prompt = `Create a 3-tier monthly retainer package for ${biz} in the ${cat} niche:
-Tier 1: Foundation ($500/month) - Review responses, 2 weekly posts, listing hygiene.
-Tier 2: Growth ($1,500/month) - Geo-grid competitor audit, citation cleanup, pre-seeded Q&A, social repurposing to Reels/TikTok.
-Tier 3: Domination ($3,000/month) - Full local pack domination, dedicated AI review engine, on-page schema sync, weekly calls.
-Detail exact deliverables and expected business ROI for each.`;
+Tier 1: Foundation ($500/month) - Review responses, weekly posts, profile hygiene.
+Tier 2: Growth ($1,500/month) - Geo-grid audit, citation cleanup, pre-seeded Q&A, social repurposing.
+Tier 3: Domination ($3,000/month) - Full Map Pack takeover, competitor review conquest, video shorts.
 
-    try {
-      const result = await callOpenRouter(prompt, "You are an agency pricing and packaging architect.");
-      resBox.innerText = result;
-    } catch (e) {
-      resBox.innerText = "Error: " + e.message;
-    }
+Detail exact deliverables and ROI rationale for each tier.`;
+
+    const result = await callOpenRouter(prompt, "You are an agency pricing and packaging architect.");
+    renderResult(resBox, result, `3-Tier Retainer — ${biz}`);
   });
 
   document.getElementById("btn-agency-closer")?.addEventListener("click", async () => {
-    const biz = document.getElementById("agency-biz").value.trim() || "My Business";
+    const biz = document.getElementById("agency-biz").value.trim() || "Client";
     const cat = document.getElementById("agency-cat").value.trim() || "Local Business";
     const resBox = document.getElementById("agency-results");
 
-    resBox.style.display = "block";
-    resBox.innerText = "Generating discovery call closing scripts...";
+    showLoading(resBox, "Generating discovery call closing script...");
 
-    const prompt = `Provide the exact word-for-word scripts to close the owner of ${biz} (${cat}) on a discovery call:
-1. Handling 'It's too expensive': Compare retainer cost vs Google Local Services Ads cost-per-click.
-2. Handling 'We already have someone doing our SEO/Website': Expose the difference between web design and local map pack category algorithms.
-3. Handling 'How fast will we see results?': Explain category updates (7-14 days) vs review compounding (30-60 days).`;
+    const prompt = `Write a 5-minute discovery call script for closing a local SEO retainer with the owner of ${biz} (${cat}):
+Include:
+1. Handling 'It's too expensive': Compare retainer cost vs Google Local Services Ads cost-per-click
+2. Handling 'I don't have time': Explain done-for-you approval workflow
+3. The exact closing question that gets payment upfront`;
 
-    try {
-      const result = await callOpenRouter(prompt, "You are a master B2B sales closer.");
-      resBox.innerText = result;
-    } catch (e) {
-      resBox.innerText = "Error: " + e.message;
-    }
+    const result = await callOpenRouter(prompt, "You are a master B2B sales closer.");
+    renderResult(resBox, result, `Closing Script — ${biz}`);
   });
 
-  // 9. Autonomous AI Agent OS Handlers
+  // 16. Persistent Agent OS Memory
   const DEFAULT_MEMORY = "Brand tone: professional, warm, authoritative. Priority: highlight positive reviews, quality service, and local presence.";
 
   if (typeof chrome !== "undefined" && chrome.storage && chrome.storage.sync) {
     chrome.storage.sync.get(["globalAgentMemory"], (res) => {
-      const memInput = document.getElementById("agentos-memory-text");
-      if (memInput) memInput.value = res.globalAgentMemory || DEFAULT_MEMORY;
+      const box = document.getElementById("agentos-memory-text");
+      if (box && res.globalAgentMemory) {
+        box.value = res.globalAgentMemory;
+      }
     });
-  } else {
-    const memInput = document.getElementById("agentos-memory-text");
-    if (memInput && !memInput.value) memInput.value = localStorage.getItem("globalAgentMemory") || DEFAULT_MEMORY;
   }
 
-  document.getElementById("btn-agentos-save-mem")?.addEventListener("click", () => {
-    const val = document.getElementById("agentos-memory-text")?.value.trim() || "";
-    const status = document.getElementById("agentos-mem-status");
+  document.getElementById("btn-save-memory")?.addEventListener("click", () => {
+    const text = document.getElementById("agentos-memory-text").value.trim();
     if (typeof chrome !== "undefined" && chrome.storage && chrome.storage.sync) {
-      chrome.storage.sync.set({ globalAgentMemory: val }, () => {
-        if (status) {
-          status.innerText = "✓ Rules committed to Agent Memory!";
-          status.style.display = "block";
-          setTimeout(() => (status.style.display = "none"), 2500);
-        }
+      chrome.storage.sync.set({ globalAgentMemory: text }, () => {
+        const btn = document.getElementById("btn-save-memory");
+        btn.innerText = "✓ Saved";
+        setTimeout(() => (btn.innerText = "💾 Save Memory"), 2000);
       });
-    } else {
-      localStorage.setItem("globalAgentMemory", val);
-      if (status) {
-        status.innerText = "✓ Rules saved to localStorage!";
-        status.style.display = "block";
-        setTimeout(() => (status.style.display = "none"), 2500);
-      }
     }
   });
 
   document.getElementById("btn-agentos-run")?.addEventListener("click", async () => {
     const biz = document.getElementById("agentos-biz").value.trim() || "My Business";
-    const data = document.getElementById("agentos-data").value.trim() || "Rating: 4.8, 42 reviews, missing website, last post 45 days ago";
+    const data = document.getElementById("agentos-data").value.trim() || "Rating: 4.8, 38 reviews, missing website link, last post 60 days ago";
     const mem = document.getElementById("agentos-memory-text")?.value.trim() || "";
     const resBox = document.getElementById("agentos-results");
 
-    resBox.style.display = "block";
-    resBox.innerText = "Executing autonomous Observe-Think-Act loop...";
+    showLoading(resBox, `Executing Autonomous Agent OS Loop for ${biz}...`);
 
     const prompt = `You are an autonomous AI Agent OS executing the Observe-Think-Act loop for Google Business Profiles.
-Business Name: ${biz}
-Raw Signals: ${data}
-${mem ? `Persistent Memory & SOP Rules: ${mem}` : ""}
+Business: ${biz}
+Current Listing Signals: ${data}
+Client Memory & Constraints: ${mem || DEFAULT_MEMORY}
 
 Perform the loop:
-1. [OBSERVE]: Scan listing completeness, review recency, category signal strength.
-2. [THINK]: Pinpoint the #1 algorithmic bottleneck holding them back from #1 on Google Maps.
-3. [ACT - EXECUTABLE SOPs]:
-   - SOP 1: Immediate Listing Fix
-   - SOP 2: Geo-Optimized 5-Star Review Reply template (with local keywords)
-   - SOP 3: Google Post Update (catchy headline, value snippet, call to action)`;
+1. OBSERVE: Parse listing signals & algorithmic deficiencies
+2. THINK: Diagnose root causes of lost Map Pack visibility
+3. ACT: Output 3 executable, prioritized SOP tasks ready for immediate execution`;
 
-    try {
-      const result = await callOpenRouter(prompt, "You are an autonomous AI Agent OS executing local business SOPs.");
-      resBox.innerText = result;
-    } catch (e) {
-      resBox.innerText = "Error: " + e.message;
-    }
+    const result = await callOpenRouter(prompt, "You are an autonomous AI Agent OS executing local business SOPs.");
+    renderResult(resBox, result, `Agent OS SOP — ${biz}`);
   });
 
-  // 10. 4S Proof of Work & Showcase Handlers
+  // 17. 4S Proof of Work & Showcase Handlers
   document.getElementById("btn-fours-teardown")?.addEventListener("click", async () => {
-    const biz = document.getElementById("fours-biz").value.trim() || "My Business";
+    const biz = document.getElementById("fours-biz").value.trim() || "Prospect";
     const niche = document.getElementById("fours-niche").value.trim() || "Local Services";
     const city = document.getElementById("fours-city").value.trim() || "Local City";
     const resBox = document.getElementById("fours-results");
 
-    resBox.style.display = "block";
-    resBox.innerText = "Constructing Proof-of-Work Teardown Case Study...";
+    showLoading(resBox, `Building Proof-of-Work case study for ${biz}...`);
 
-    const prompt = `You are applying the 'Showcase Proof-of-Work' framework.
-Create a high-impact, professional Client Teardown Case Study for:
-Business: ${biz}
-Niche: ${niche}
-Market: ${city}
+    const prompt = `Apply the 'Showcase Proof-of-Work' framework to create a high-authority client teardown case study:
+Client/Niche: ${biz} (${niche} in ${city})
 
-Structure the case study:
-1. Executive Summary: Current local Google Maps visibility vs market potential.
-2. The 3 Costly Bottlenecks: Unoptimized category signals, dormant review keywords, and competitor geo-dominance.
-3. The Transformation Roadmap (Step-by-Step implementation).
-4. Estimated Financial ROI: What moving into the Top 3 Map Pack delivers in monthly customer inquiries and revenue ($15k-$30k value).
-This document serves as undeniable proof of competence to win high-ticket clients.`;
+Include:
+1. The Teardown (Algorithmic vulnerabilities & missed revenue)
+2. The Prescription (3-step technical and category fix)
+3. Projected Financial Impact (Estimated calls, bookings, and revenue ROI)`;
 
-    try {
-      const result = await callOpenRouter(prompt, "You are a growth engineer creating proof-of-work case studies.");
-      resBox.innerText = result;
-    } catch (e) {
-      resBox.innerText = "Error: " + e.message;
-    }
+    const result = await callOpenRouter(prompt, "You are a growth engineer creating proof-of-work case studies.");
+    renderResult(resBox, result, `4S Case Study — ${biz}`);
   });
 
   document.getElementById("btn-fours-blueprint")?.addEventListener("click", async () => {
     const niche = document.getElementById("fours-niche").value.trim() || "Local Services";
     const resBox = document.getElementById("fours-results");
 
-    resBox.style.display = "block";
-    resBox.innerText = "Generating 4S $10k/Month Scaling Blueprint...";
+    showLoading(resBox, `Synthesizing 4S scaling blueprint for ${niche}...`);
 
-    const prompt = `Outline the 4S scaling blueprint to turn local SEO & AI audit capabilities (${niche} niche) into a $10,000/month recurring income model:
-1. S - Select: Why local high-ticket service niches (studios, medical, legal) pay premium retainers.
-2. S - Skill: High-leverage automated tooling vs manual manual agency work.
-3. S - Showcase: Using public teardowns and live case studies to attract inbound clients without cold spam.
-4. S - Scale: Managing 7-10 clients on $1k-$1.5k monthly retainers using automated extensions and AI agent SOPs.`;
+    const prompt = `Synthesize an agency monetization roadmap for local high-ticket service businesses (${niche}):
+1. Select: Why this local niche pays premium retainers
+2. Skill: High-leverage automated tooling vs manual agency grind
+3. Showcase: Positioning proof-of-work audits to close inbound clients
+4. Scale: Managing 7-10 clients on $1,000-$1,500 monthly retainers with automated tooling`;
+
+    const result = await callOpenRouter(prompt, "You are an expert career and monetization mentor.");
+    renderResult(resBox, result, `4S Monetization Blueprint`);
+  });
+
+  // 18. Test Connection
+  document.getElementById("test-conn-btn")?.addEventListener("click", async () => {
+    const key = document.getElementById("openrouter-key").value.trim();
+    const msg = document.getElementById("settings-msg");
+    if (!key) {
+      msg.innerText = "❌ Please enter an OpenRouter API key first.";
+      msg.style.color = "#dc2626";
+      return;
+    }
+    msg.innerText = "Testing OpenRouter connection...";
+    msg.style.color = "#64748b";
 
     try {
-      const result = await callOpenRouter(prompt, "You are an expert career and monetization mentor.");
-      resBox.innerText = result;
-    } catch (e) {
-      resBox.innerText = "Error: " + e.message;
+      const res = await fetch("https://openrouter.ai/api/v1/auth/key", {
+        headers: { Authorization: `Bearer ${key}` },
+      });
+      if (res.ok) {
+        msg.innerText = "✓ Connection verified! API key is active.";
+        msg.style.color = "#16a34a";
+      } else {
+        msg.innerText = `❌ Invalid API key (HTTP ${res.status}).`;
+        msg.style.color = "#dc2626";
+      }
+    } catch (err) {
+      msg.innerText = "❌ Connection test failed: " + err.message;
+      msg.style.color = "#dc2626";
     }
   });
 });

@@ -5,7 +5,27 @@
   "use strict";
 
   const PROCESSED_ATTR = "data-gmbe-processed";
-  const OPENROUTER_KEY = ""; // Set your OpenRouter API key in the Settings tab
+  let OPENROUTER_KEY = "";
+  let OPENROUTER_MODEL = "google/gemini-2.5-flash";
+
+  function syncStorageAiConfig() {
+    if (typeof chrome !== "undefined" && chrome.storage && chrome.storage.sync) {
+      chrome.storage.sync.get(["openrouterKey", "openrouterModel"], (res) => {
+        if (res && res.openrouterKey) OPENROUTER_KEY = res.openrouterKey;
+        if (res && res.openrouterModel) OPENROUTER_MODEL = res.openrouterModel;
+      });
+    }
+  }
+  syncStorageAiConfig();
+
+  if (typeof chrome !== "undefined" && chrome.storage && chrome.storage.onChanged) {
+    chrome.storage.onChanged.addListener((changes, area) => {
+      if (area === "sync") {
+        if (changes.openrouterKey) OPENROUTER_KEY = changes.openrouterKey.newValue || "";
+        if (changes.openrouterModel) OPENROUTER_MODEL = changes.openrouterModel.newValue || "google/gemini-2.5-flash";
+      }
+    });
+  }
 
   let interceptedCategories = [];
 
@@ -500,7 +520,7 @@ Include:
           "x-title": "MapRank Everywhere Extension",
         },
         body: JSON.stringify({
-          model: "google/gemini-2.5-flash",
+          model: OPENROUTER_MODEL || "google/gemini-2.5-flash",
           max_tokens: 650,
           messages: [
             { role: "system", content: "You are a professional local SEO agency director pitching a business owner." },
@@ -604,7 +624,7 @@ Provide:
           "x-title": "MapRank Everywhere Extension",
         },
         body: JSON.stringify({
-          model: "google/gemini-2.5-flash",
+          model: OPENROUTER_MODEL || "google/gemini-2.5-flash",
           max_tokens: 600,
           messages: [
             { role: "system", content: "You are a customer experience and reputation management specialist." },
@@ -671,7 +691,7 @@ For Week 1 to Week 4, provide:
           "x-title": "MapRank Everywhere Extension",
         },
         body: JSON.stringify({
-          model: "google/gemini-2.5-flash",
+          model: OPENROUTER_MODEL || "google/gemini-2.5-flash",
           max_tokens: 750,
           messages: [
             { role: "system", content: "You are a local business social and Google post strategist." },
@@ -741,7 +761,7 @@ For Week 1 to Week 4, provide:
         "x-title": "MapRank Everywhere Extension",
       },
       body: JSON.stringify({
-        model: "google/gemini-2.5-flash",
+        model: OPENROUTER_MODEL || "google/gemini-2.5-flash",
         max_tokens: 450,
         messages: [
           {
@@ -842,7 +862,7 @@ Make sure keywords appear in BOTH the question and the owner answer.`;
           "x-title": "MapRank Everywhere Extension",
         },
         body: JSON.stringify({
-          model: "google/gemini-2.5-flash",
+          model: OPENROUTER_MODEL || "google/gemini-2.5-flash",
           max_tokens: 750,
           messages: [
             { role: "system", content: "You are an expert in Google Q&A optimization for local SEO." },
@@ -886,7 +906,7 @@ Analyze:
           "x-title": "MapRank Everywhere Extension",
         },
         body: JSON.stringify({
-          model: "google/gemini-2.5-flash",
+          model: OPENROUTER_MODEL || "google/gemini-2.5-flash",
           max_tokens: 500,
           messages: [
             { role: "system", content: "You are a Google Business Profile policy enforcement expert." },
@@ -926,7 +946,7 @@ Grounds: Google's Prohibited and Restricted Content Policy (Fake Engagement / Co
           "x-title": "MapRank Everywhere Extension",
         },
         body: JSON.stringify({
-          model: "google/gemini-2.5-flash",
+          model: OPENROUTER_MODEL || "google/gemini-2.5-flash",
           max_tokens: 500,
           messages: [
             { role: "system", content: "You are a legal and policy specialist drafting appeals to Google Support." },
@@ -1015,7 +1035,7 @@ Output:
           "x-title": "MapRank Everywhere Extension",
         },
         body: JSON.stringify({
-          model: "google/gemini-2.5-flash",
+          model: OPENROUTER_MODEL || "google/gemini-2.5-flash",
           max_tokens: 750,
           messages: [
             { role: "system", content: "You are an expert social media creator and viral short-form copywriter." },
@@ -1058,7 +1078,7 @@ Provide:
           "x-title": "MapRank Everywhere Extension",
         },
         body: JSON.stringify({
-          model: "google/gemini-2.5-flash",
+          model: OPENROUTER_MODEL || "google/gemini-2.5-flash",
           max_tokens: 650,
           messages: [
             { role: "system", content: "You are a direct-response paid social ads specialist." },
@@ -1100,7 +1120,7 @@ List:
           "x-title": "MapRank Everywhere Extension",
         },
         body: JSON.stringify({
-          model: "google/gemini-2.5-flash",
+          model: OPENROUTER_MODEL || "google/gemini-2.5-flash",
           max_tokens: 500,
           messages: [
             { role: "system", content: "You are a Voice of Customer (VOC) and audience researcher." },
@@ -1203,7 +1223,7 @@ Write:
           "x-title": "MapRank Everywhere Extension",
         },
         body: JSON.stringify({
-          model: "google/gemini-2.5-flash",
+          model: OPENROUTER_MODEL || "google/gemini-2.5-flash",
           max_tokens: 500,
           messages: [
             { role: "system", content: "You are an elite 1-person agency cold email copywriter." },
@@ -1243,7 +1263,7 @@ Follow the proven winning proposal formula:
           "x-title": "MapRank Everywhere Extension",
         },
         body: JSON.stringify({
-          model: "google/gemini-2.5-flash",
+          model: OPENROUTER_MODEL || "google/gemini-2.5-flash",
           max_tokens: 500,
           messages: [
             { role: "system", content: "You are an elite freelance strategist winning high-ticket Upwork contracts." },
@@ -1282,7 +1302,7 @@ For each tier, list exact deliverables and expected business ROI.`;
           "x-title": "MapRank Everywhere Extension",
         },
         body: JSON.stringify({
-          model: "google/gemini-2.5-flash",
+          model: OPENROUTER_MODEL || "google/gemini-2.5-flash",
           max_tokens: 500,
           messages: [
             { role: "system", content: "You are an agency pricing and packaging architect." },
@@ -1320,7 +1340,7 @@ For each tier, list exact deliverables and expected business ROI.`;
           "x-title": "MapRank Everywhere Extension",
         },
         body: JSON.stringify({
-          model: "google/gemini-2.5-flash",
+          model: OPENROUTER_MODEL || "google/gemini-2.5-flash",
           max_tokens: 500,
           messages: [
             { role: "system", content: "You are a master B2B sales closer." },
@@ -1435,7 +1455,7 @@ Perform the loop:
           "x-title": "MapRank Everywhere Extension",
         },
         body: JSON.stringify({
-          model: "google/gemini-2.5-flash",
+          model: OPENROUTER_MODEL || "google/gemini-2.5-flash",
           max_tokens: 650,
           messages: [
             { role: "system", content: "You are an autonomous AI Agent operating system executing SOPs for local businesses." },
@@ -1516,7 +1536,7 @@ This document serves as undeniable proof of competence to win high-ticket client
           "x-title": "MapRank Everywhere Extension",
         },
         body: JSON.stringify({
-          model: "google/gemini-2.5-flash",
+          model: OPENROUTER_MODEL || "google/gemini-2.5-flash",
           max_tokens: 650,
           messages: [
             { role: "system", content: "You are a senior growth engineer and proof-of-work case study specialist." },
@@ -1555,7 +1575,7 @@ This document serves as undeniable proof of competence to win high-ticket client
           "x-title": "MapRank Everywhere Extension",
         },
         body: JSON.stringify({
-          model: "google/gemini-2.5-flash",
+          model: OPENROUTER_MODEL || "google/gemini-2.5-flash",
           max_tokens: 500,
           messages: [
             { role: "system", content: "You are an expert career and monetization mentor." },
@@ -1580,6 +1600,18 @@ This document serves as undeniable proof of competence to win high-ticket client
       t.innerText = msg;
       setTimeout(() => (t.innerText = ""), 2500);
     }
+  }
+
+
+  // Listen for queries from MapRank Everywhere popup
+  if (typeof chrome !== "undefined" && chrome.runtime && chrome.runtime.onMessage) {
+    chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
+      if (request.action === "getActiveBusiness") {
+        const details = getPlaceDetails();
+        sendResponse({ success: true, data: details });
+      }
+      return true;
+    });
   }
 
   // Continuous observer to handle dynamic Google Maps page transitions

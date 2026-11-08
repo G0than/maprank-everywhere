@@ -10,10 +10,10 @@
       padding: 0;
     }
     body {
-      width: 400px;
-      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+      width: 420px;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
       font-size: 13px;
-      color: #202124;
+      color: #1e293b;
       background-color: #ffffff;
       padding: 16px;
     }
@@ -21,49 +21,127 @@
       display: flex;
       align-items: center;
       justify-content: space-between;
-      border-bottom: 1px solid #e8eaed;
+      border-bottom: 1px solid #e2e8f0;
       padding-bottom: 10px;
       margin-bottom: 12px;
     }
     .logo {
       font-weight: 700;
-      font-size: 16px;
-      color: #f96535;
+      font-size: 15px;
+      color: #0f172a;
       display: flex;
       align-items: center;
-      gap: 6px;
+      gap: 8px;
+    }
+    .logo img {
+      width: 22px;
+      height: 22px;
+      border-radius: 5px;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.1);
     }
     .badge-status {
-      font-size: 10px;
-      padding: 2px 6px;
-      border-radius: 10px;
-      background: #e6f4ea;
-      color: #137333;
+      font-size: 11px;
+      padding: 3px 8px;
+      border-radius: 12px;
+      background: #f1f5f9;
+      color: #475569;
       font-weight: 600;
+      display: flex;
+      align-items: center;
+      gap: 5px;
     }
+    .badge-status.active {
+      background: #dcfce7;
+      color: #15803d;
+    }
+    .badge-status.warning {
+      background: #fef3c7;
+      color: #92400e;
+    }
+    .live-dot {
+      width: 7px;
+      height: 7px;
+      border-radius: 50%;
+      background: #22c55e;
+      display: inline-block;
+    }
+    .live-dot.warn {
+      background: #f59e0b;
+    }
+
+    /* Active Tab Connection Banner */
+    .tab-banner {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 8px 12px;
+      background: #f8fafc;
+      border: 1px solid #e2e8f0;
+      border-radius: 8px;
+      margin-bottom: 12px;
+      font-size: 11px;
+    }
+    .tab-banner-info {
+      display: flex;
+      align-items: center;
+      gap: 7px;
+      overflow: hidden;
+    }
+    .tab-banner-text {
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      color: #334155;
+      font-weight: 500;
+    }
+    .tab-banner-text strong {
+      color: #0f172a;
+    }
+    .btn-sync {
+      background: #ffffff;
+      border: 1px solid #cbd5e1;
+      padding: 3px 8px;
+      border-radius: 4px;
+      font-size: 10px;
+      font-weight: 600;
+      color: #475569;
+      cursor: pointer;
+      flex-shrink: 0;
+      transition: all 0.15s ease;
+    }
+    .btn-sync:hover {
+      background: #f1f5f9;
+      color: #0f172a;
+    }
+
     .tab-nav {
       display: flex;
       gap: 4px;
       margin-bottom: 14px;
-      border-bottom: 1px solid #f1f3f4;
+      border-bottom: 1px solid #f1f5f9;
       padding-bottom: 8px;
       overflow-x: auto;
+      scrollbar-width: thin;
     }
     .tab-btn {
       background: none;
       border: none;
       font-size: 11px;
       font-weight: 600;
-      color: #5f6368;
+      color: #64748b;
       cursor: pointer;
       padding: 5px 8px;
-      border-radius: 4px;
+      border-radius: 6px;
       white-space: nowrap;
       transition: all 0.15s ease;
     }
+    .tab-btn:hover {
+      color: #0f172a;
+      background: #f8fafc;
+    }
     .tab-btn.active {
-      color: #f96535;
-      background: #fff4f0;
+      color: #ea580c;
+      background: #fff7ed;
     }
     .tab-content {
       display: none;
@@ -78,21 +156,26 @@
       display: block;
       font-size: 11px;
       font-weight: 600;
-      color: #5f6368;
+      color: #475569;
       text-transform: uppercase;
+      letter-spacing: 0.3px;
       margin-bottom: 4px;
     }
     input[type="text"], input[type="password"], textarea, select {
       width: 100%;
       padding: 7px 10px;
-      border: 1px solid #dadce0;
+      border: 1px solid #cbd5e1;
       border-radius: 6px;
       font-size: 12px;
       outline: none;
       font-family: inherit;
+      color: #1e293b;
+      background: #ffffff;
+      transition: border-color 0.15s ease;
     }
     input[type="text"]:focus, input[type="password"]:focus, textarea:focus, select:focus {
-      border-color: #f96535;
+      border-color: #ea580c;
+      box-shadow: 0 0 0 2px rgba(234, 88, 12, 0.1);
     }
     .btn {
       width: 100%;
@@ -102,286 +185,399 @@
       font-weight: 600;
       cursor: pointer;
       border: none;
-      transition: background-color 0.15s ease;
+      transition: all 0.15s ease;
       display: inline-flex;
       align-items: center;
       justify-content: center;
       gap: 6px;
     }
     .btn-primary {
-      background: #f96535;
+      background: #ea580c;
       color: #ffffff;
     }
     .btn-primary:hover {
-      background: #e05324;
+      background: #c2410c;
     }
     .btn-secondary {
-      background: #f1f3f4;
-      color: #3c4043;
+      background: #f1f5f9;
+      color: #334155;
       margin-top: 6px;
     }
     .btn-secondary:hover {
-      background: #e8eaed;
+      background: #e2e8f0;
     }
     .btn-purple {
-      background: #9334e9;
+      background: #7c3aed;
       color: #ffffff;
       margin-top: 6px;
     }
     .btn-purple:hover {
-      background: #7e22ce;
+      background: #6d28d9;
     }
     .hint {
       font-size: 11px;
-      color: #70757a;
-      margin-top: 3px;
+      color: #64748b;
+      margin-top: 4px;
+      line-height: 1.35;
     }
+
+    /* Result Box & Markdown Viewer */
     .result-box {
-      margin-top: 10px;
-      padding: 10px;
-      background: #f8f9fa;
-      border: 1px solid #e8eaed;
-      border-radius: 6px;
+      margin-top: 12px;
+      background: #ffffff;
+      border: 1px solid #e2e8f0;
+      border-radius: 8px;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.04);
+      display: none;
+      overflow: hidden;
+    }
+    .result-toolbar {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 7px 10px;
+      background: #f8fafc;
+      border-bottom: 1px solid #e2e8f0;
+      font-size: 11px;
+      font-weight: 600;
+      color: #475569;
+    }
+    .result-actions {
+      display: flex;
+      gap: 6px;
+    }
+    .action-btn {
+      background: #ffffff;
+      border: 1px solid #cbd5e1;
+      padding: 3px 8px;
+      border-radius: 4px;
+      font-size: 11px;
+      font-weight: 600;
+      color: #334155;
+      cursor: pointer;
+      transition: all 0.15s ease;
+    }
+    .action-btn:hover {
+      background: #f1f5f9;
+      color: #0f172a;
+    }
+    .action-btn.copied {
+      background: #dcfce7;
+      color: #15803d;
+      border-color: #86efac;
+    }
+    .result-content {
+      padding: 12px;
       font-size: 12px;
-      line-height: 1.45;
-      max-height: 180px;
+      line-height: 1.55;
+      max-height: 220px;
       overflow-y: auto;
-      white-space: pre-wrap;
       word-break: break-word;
+      color: #1e293b;
+    }
+    .result-content h1, .result-content h2, .result-content h3 {
+      margin: 8px 0 4px 0;
+      color: #0f172a;
+      font-weight: 700;
+    }
+    .result-content h1 { font-size: 13.5px; }
+    .result-content h2 { font-size: 12.5px; }
+    .result-content h3 { font-size: 12px; }
+    .result-content ul, .result-content ol {
+      margin: 6px 0;
+      padding-left: 18px;
+    }
+    .result-content li {
+      margin-bottom: 3px;
+    }
+    .result-content code {
+      background: #f1f5f9;
+      padding: 1px 4px;
+      border-radius: 4px;
+      font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+      font-size: 11px;
+      color: #0f172a;
+    }
+    .result-content strong {
+      color: #0f172a;
+    }
+
+    /* Loading Pulse */
+    .loading-state {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      padding: 12px;
+      color: #64748b;
+      font-size: 12px;
+      font-weight: 500;
+    }
+    .spinner {
+      width: 14px;
+      height: 14px;
+      border: 2px solid #e2e8f0;
+      border-top-color: #ea580c;
+      border-radius: 50%;
+      animation: spin 0.8s linear infinite;
+    }
+    @keyframes spin {
+      to { transform: rotate(360deg); }
     }
   </style>
 </head>
 <body>
   <div class="header">
     <div class="logo">
-      <span>📍 MapRank Everywhere</span>
+      <img src="icons/icon32.png" alt="MapRank Icon">
+      <span>MapRank Everywhere</span>
     </div>
-    <span class="badge-status" id="conn-status">AI Ready</span>
+    <span class="badge-status" id="conn-status">
+      <span class="live-dot" id="status-dot"></span>
+      <span id="status-text">AI Ready</span>
+    </span>
+  </div>
+
+  <!-- Live Google Maps Tab Connection Banner -->
+  <div id="active-tab-banner" class="tab-banner" style="display:none;">
+    <div class="tab-banner-info">
+      <span class="live-dot"></span>
+      <span class="tab-banner-text" id="active-biz-label">Detecting active listing...</span>
+    </div>
+    <button class="btn-sync" id="btn-sync-active" title="Sync business info from current Google Maps tab">Sync Tab</button>
   </div>
 
   <div class="tab-nav">
-    <button class="tab-btn active" data-tab="audit">Audit & Pitch</button>
-    <button class="tab-btn" data-tab="agency">💼 Agency & Outreach</button>
-    <button class="tab-btn" data-tab="agentos">⚡ Agent OS</button>
-    <button class="tab-btn" data-tab="fours">📊 4S Proof of Work</button>
-    <button class="tab-btn" data-tab="replies">Review Replies</button>
-    <button class="tab-btn" data-tab="posts">Google Posts</button>
-    <button class="tab-btn" data-tab="social">Social & Ads</button>
-    <button class="tab-btn" data-tab="qa">Q&A Pre-Seed</button>
-    <button class="tab-btn" data-tab="policy">Policy & Dispute</button>
-    <button class="tab-btn" data-tab="teleport">Teleport</button>
-    <button class="tab-btn" data-tab="settings">Settings</button>
+    <button class="tab-btn active" data-tab="audit">⚡ Audit</button>
+    <button class="tab-btn" data-tab="agency">💼 Agency</button>
+    <button class="tab-btn" data-tab="agentos">🤖 Agent OS</button>
+    <button class="tab-btn" data-tab="fours">📊 4S Proof</button>
+    <button class="tab-btn" data-tab="replies">⭐ Replies</button>
+    <button class="tab-btn" data-tab="posts">📝 Posts</button>
+    <button class="tab-btn" data-tab="social">📱 Social</button>
+    <button class="tab-btn" data-tab="qa">❓ Q&A</button>
+    <button class="tab-btn" data-tab="policy">🛡️ Policy</button>
+    <button class="tab-btn" data-tab="teleport">📍 Teleport</button>
+    <button class="tab-btn" data-tab="settings">⚙️ Settings</button>
   </div>
 
   <!-- Tab 1: Audit & Pitch -->
   <div id="tab-audit" class="tab-content active">
     <div class="form-group">
       <label>Business Name</label>
-      <input type="text" id="audit-biz" value="" placeholder="e.g. Bhardwaj Photo Studio">
+      <input type="text" id="audit-biz" placeholder="e.g. Acme Dental Clinic">
     </div>
     <div style="display:flex; gap:8px;">
       <div class="form-group" style="flex:1;">
         <label>Primary Category</label>
-        <input type="text" id="audit-cat" value="Photography Studio" placeholder="Photography Studio">
-      </div>
-      <div class="form-group" style="flex:1;">
-        <label>City / Area</label>
-        <input type="text" id="audit-city" value="" placeholder="Delhi NCR">
-      </div>
-    </div>
-    <button class="btn btn-primary" id="btn-run-audit">⚡ Run 100-Point Audit</button>
-    <button class="btn btn-purple" id="btn-gen-pitch">💼 Generate Client Retainer Pitch ($750/mo)</button>
-    <div class="result-box" id="audit-results" style="display:none;"></div>
-  </div>
-
-  <!-- Tab: 1-Person Agency & Outreach -->
-  <div id="tab-agency" class="tab-content">
-    <div class="form-group">
-      <label>Target Business Name</label>
-      <input type="text" id="agency-biz" value="" placeholder="e.g. Bhardwaj Photo Studio">
-    </div>
-    <div style="display:flex; gap:8px;">
-      <div class="form-group" style="flex:1;">
-        <label>Category</label>
-        <input type="text" id="agency-cat" value="Wedding Photography Studio" placeholder="e.g. Photography Studio">
+        <input type="text" id="audit-cat" placeholder="e.g. Dentist">
       </div>
       <div class="form-group" style="flex:1;">
         <label>City / Location</label>
-        <input type="text" id="agency-loc" value="" placeholder="e.g. Delhi">
+        <input type="text" id="audit-city" placeholder="e.g. Austin, TX">
       </div>
     </div>
-    <div class="form-group">
-      <label>Observed Listing Gap (e.g. missing secondary categories, stagnant reviews)</label>
-      <input type="text" id="agency-gap" value="Missing secondary categories: Wedding Photographer, Portrait Studio, Video Production Service" placeholder="Missing Wedding Photographer category">
-    </div>
-    <button class="btn btn-primary" id="btn-agency-coldemail" style="background:#059669;">📧 Generate Audit Cold Email (Instantly style)</button>
-    <button class="btn btn-secondary" id="btn-agency-upwork" style="margin-top:6px;">🏆 Write Winning Upwork Proposal</button>
-    <button class="btn btn-secondary" id="btn-agency-pricing" style="margin-top:6px;">💎 Calculate 3-Tier Retainer Package ($500/$1.5k/$3k)</button>
-    <button class="btn btn-secondary" id="btn-agency-closer" style="margin-top:6px;">📞 Sales Call Discovery Closing Script</button>
-    <div class="result-box" id="agency-results" style="display:none;"></div>
+    <button class="btn btn-primary" id="btn-run-audit">⚡ Run Instant 100-Point Audit</button>
+    <button class="btn btn-secondary" id="btn-gen-pitch">💼 Generate Client Proposal ($750/mo Retainer)</button>
+    <div class="result-box" id="audit-results"></div>
   </div>
 
-  <!-- Tab: AI Agent OS -->
-  <div id="tab-agentos" class="tab-content">
-    <div class="form-group">
-      <label>Business Name</label>
-      <input type="text" id="agentos-biz" value="" placeholder="e.g. Bhardwaj Photo Studio">
-    </div>
-    <div class="form-group">
-      <label>Listing Signals / Raw Data</label>
-      <input type="text" id="agentos-data" value="Rating: 4.9, 85+ reviews, Top Services: Luxury Wedding, Pre-Wedding shoots, Candid Films" placeholder="Rating: 4.8, 42 reviews...">
-    </div>
-    <button class="btn btn-primary" id="btn-agentos-run" style="background:#7c3aed;">⚡ Run Observe-Think-Act Loop</button>
-    <div class="form-group" style="margin-top:12px;">
-      <label>🧠 Business Memory (Learned Client Rules & Brand Tone)</label>
-      <textarea id="agentos-memory-text" rows="3">Never mention passport photos or cheap rates. Brand tone: luxury, warm, emotional, authoritative. Priority keywords: best wedding photographer in Delhi NCR, pre-wedding shoot Delhi, candid cinematic wedding film.</textarea>
-      <button class="btn btn-secondary" id="btn-agentos-save-mem" style="margin-top:6px;">Save to Agent Memory</button>
-      <div id="agentos-mem-status" class="hint" style="color:#059669; font-weight:600; display:none; margin-top:4px;"></div>
-    </div>
-    <div class="result-box" id="agentos-results" style="display:none;"></div>
-  </div>
-
-  <!-- Tab: 4S Proof of Work & Showcase -->
-  <div id="tab-fours" class="tab-content">
+  <!-- Tab 2: 1-Person Agency Suite -->
+  <div id="tab-agency" class="tab-content">
     <div class="form-group">
       <label>Target Business Name</label>
-      <input type="text" id="fours-biz" value="" placeholder="e.g. Bhardwaj Photo Studio">
+      <input type="text" id="agency-biz" placeholder="e.g. Premier Auto Repair">
     </div>
     <div style="display:flex; gap:8px;">
       <div class="form-group" style="flex:1;">
-        <label>Niche</label>
-        <input type="text" id="fours-niche" value="Luxury Wedding & Pre-Wedding Photography" placeholder="Wedding & Commercial Photography">
+        <label>Industry / Niche</label>
+        <input type="text" id="agency-cat" placeholder="e.g. Auto Repair Shop">
       </div>
       <div class="form-group" style="flex:1;">
-        <label>Market City</label>
-        <input type="text" id="fours-city" value="" placeholder="e.g. Mumbai / Delhi">
-      </div>
-    </div>
-    <button class="btn btn-primary" id="btn-fours-teardown" style="background:#0284c7;">📊 Generate Proof-of-Work Teardown Case Study</button>
-    <button class="btn btn-secondary" id="btn-fours-blueprint" style="margin-top:6px;">🚀 Generate 4S $10k/Month Scaling Blueprint</button>
-    <div class="result-box" id="fours-results" style="display:none;"></div>
-  </div>
-
-  <!-- Tab 2: Review Replies -->
-  <div id="tab-replies" class="tab-content">
-    <div style="display:flex; gap:8px;">
-      <div class="form-group" style="flex:2;">
-        <label>Business Name</label>
-        <input type="text" id="reply-biz" value="" placeholder="Your Business Name">
-      </div>
-      <div class="form-group" style="flex:1;">
-        <label>Stars</label>
-        <select id="reply-stars">
-          <option value="5" selected>5 ★★★★★</option>
-          <option value="4">4 ★★★★</option>
-          <option value="3">3 ★★★</option>
-          <option value="2">2 ★★</option>
-          <option value="1">1 ★</option>
-        </select>
+        <label>City / Target Area</label>
+        <input type="text" id="agency-loc" placeholder="e.g. Denver, CO">
       </div>
     </div>
     <div class="form-group">
-      <label>Customer Review</label>
-      <textarea id="reply-text" rows="2">Bhardwaj Photo Studio made our wedding day unforgettable! The team was punctual, candid shots captured pure emotion, and our wedding album is truly breathtaking.</textarea>
+      <label>Identified Audit Gap / Vulnerability</label>
+      <input type="text" id="agency-gap" value="Missing secondary categories, low review velocity vs competitor #1" placeholder="e.g. Missing categories">
     </div>
-    <button class="btn btn-primary" id="btn-gen-reply">🤖 Generate 3 Smart Replies</button>
-    <div class="result-box" id="reply-results" style="display:none;"></div>
+    <button class="btn btn-primary" id="btn-agency-coldemail">📧 Draft Personalized Cold Email</button>
+    <button class="btn btn-secondary" id="btn-agency-upwork">🏆 Write Winning Upwork Proposal</button>
+    <button class="btn btn-secondary" id="btn-agency-pricing">💰 Calculate 3-Tier Retainer ($500 / $1.5k / $3k)</button>
+    <button class="btn btn-purple" id="btn-agency-closer">🤝 Discovery Call Closing Script</button>
+    <div class="result-box" id="agency-results"></div>
   </div>
 
-  <!-- Tab 3: Google Posts -->
+  <!-- Tab 3: Agent OS (Observe-Think-Act Loop) -->
+  <div id="tab-agentos" class="tab-content">
+    <div class="form-group">
+      <label>Client / Business Name</label>
+      <input type="text" id="agentos-biz" placeholder="e.g. Apex Chiropractic">
+    </div>
+    <div class="form-group">
+      <label>Observed Listing Signals</label>
+      <input type="text" id="agentos-data" value="Rating: 4.8, 38 reviews, missing website link, last post 60 days ago" placeholder="Signals...">
+    </div>
+    <div class="form-group">
+      <label>Persistent Brand Memory & Constraints</label>
+      <textarea id="agentos-memory-text" rows="3" placeholder="Brand tone, prohibited phrases, target keywords...">Brand tone: professional, warm, authoritative. Focus on quality care, local community presence, and positive patient testimonials.</textarea>
+      <div style="display:flex; justify-content:space-between; margin-top:4px;">
+        <span class="hint">Persisted in browser storage</span>
+        <button id="btn-save-memory" style="background:#f1f5f9; border:1px solid #cbd5e1; border-radius:4px; padding:2px 8px; font-size:11px; cursor:pointer; font-weight:600;">💾 Save Memory</button>
+      </div>
+    </div>
+    <button class="btn btn-primary" id="btn-agentos-run">⚡ Execute Agent Loop (Diagnose & SOP)</button>
+    <div class="result-box" id="agentos-results"></div>
+  </div>
+
+  <!-- Tab 4: 4S Proof of Work & Showcase -->
+  <div id="tab-fours" class="tab-content">
+    <div class="form-group">
+      <label>Client / Prospect Business Name</label>
+      <input type="text" id="fours-biz" placeholder="e.g. Summit Law Group">
+    </div>
+    <div style="display:flex; gap:8px;">
+      <div class="form-group" style="flex:1;">
+        <label>Niche / Category</label>
+        <input type="text" id="fours-niche" placeholder="e.g. Personal Injury Attorney">
+      </div>
+      <div class="form-group" style="flex:1;">
+        <label>Market / City</label>
+        <input type="text" id="fours-city" placeholder="e.g. Chicago, IL">
+      </div>
+    </div>
+    <button class="btn btn-primary" id="btn-fours-teardown">📊 Generate Client Teardown Case Study</button>
+    <button class="btn btn-purple" id="btn-fours-blueprint">🚀 4S Agency Monetization Roadmap</button>
+    <div class="result-box" id="fours-results"></div>
+  </div>
+
+  <!-- Tab 5: Review Replies -->
+  <div id="tab-replies" class="tab-content">
+    <div class="form-group">
+      <label>Business Name</label>
+      <input type="text" id="reply-biz" placeholder="e.g. Sunset Bistro">
+    </div>
+    <div class="form-group">
+      <label>Star Rating</label>
+      <select id="reply-stars">
+        <option value="5">⭐⭐⭐⭐⭐ (5 Stars - Celebration)</option>
+        <option value="4">⭐⭐⭐⭐ (4 Stars - Great)</option>
+        <option value="3">⭐⭐⭐ (3 Stars - Neutral / Constructive)</option>
+        <option value="1">⭐ (1 Star - Urgent Damage Control)</option>
+      </select>
+    </div>
+    <div class="form-group">
+      <label>Customer Review Text</label>
+      <textarea id="reply-text" rows="2" placeholder="Paste the customer review here..."></textarea>
+    </div>
+    <button class="btn btn-primary" id="btn-gen-reply">✍️ Generate 3 SEO-Optimized Replies</button>
+    <div class="result-box" id="reply-results"></div>
+  </div>
+
+  <!-- Tab 6: Google Posts -->
   <div id="tab-posts" class="tab-content">
     <div class="form-group">
       <label>Business Name</label>
-      <input type="text" id="posts-biz" value="" placeholder="Your Business Name">
+      <input type="text" id="posts-biz" placeholder="e.g. Precision HVAC">
     </div>
     <div class="form-group">
-      <label>Special Promotion or Topic</label>
-      <input type="text" id="posts-promo" value="" placeholder="e.g. 15% off Wedding & Pre-wedding packages">
+      <label>Current Promotion / Seasonal Angle</label>
+      <input type="text" id="posts-promo" placeholder="e.g. Summer AC Tune-Up Special 15% Off">
     </div>
     <button class="btn btn-primary" id="btn-gen-posts">📝 Generate 4-Week Post Calendar</button>
-    <div class="result-box" id="posts-results" style="display:none;"></div>
+    <div class="result-box" id="posts-results"></div>
   </div>
 
-  <!-- Tab: Social & Ads Intelligence -->
+  <!-- Tab 7: Social & Ads Intelligence -->
   <div id="tab-social" class="tab-content">
     <div class="form-group">
-      <label>Business / Brand Name</label>
-      <input type="text" id="social-biz" value="" placeholder="Your Business Name">
+      <label>Business Name</label>
+      <input type="text" id="social-biz" placeholder="e.g. Urban Fitness Gym">
     </div>
     <div class="form-group">
       <label>5-Star Review or Client Win to Repurpose</label>
-      <textarea id="social-win" rows="2">Best wedding photographer in Delhi NCR! Our candid wedding film and photo album brought tears to our eyes. Highly recommend Bhardwaj Photo Studio for every couple!</textarea>
+      <textarea id="social-win" rows="2" placeholder="Paste a rave customer review to convert into marketing content...">Amazing results and supportive trainers! Lost 15 lbs in 2 months.</textarea>
     </div>
     <button class="btn btn-primary" id="btn-repurpose-social">📱 Repurpose to Reels, TikTok & Carousel</button>
     <button class="btn btn-purple" id="btn-spy-ads">🎯 Competitor Ad Library Teardown</button>
-    <div class="result-box" id="social-results" style="display:none;"></div>
+    <div class="result-box" id="social-results"></div>
   </div>
 
-  <!-- Tab 4: Q&A Pre-Seed Strategy -->
+  <!-- Tab 8: Q&A Pre-Seed Strategy -->
   <div id="tab-qa" class="tab-content">
     <div class="form-group">
       <label>Business Name</label>
-      <input type="text" id="qa-biz" value="" placeholder="Your Business Name">
+      <input type="text" id="qa-biz" placeholder="e.g. Modern Dental Care">
     </div>
     <div style="display:flex; gap:8px;">
       <div class="form-group" style="flex:1;">
         <label>Primary Category</label>
-        <input type="text" id="qa-cat" value="" placeholder="Photography Studio">
+        <input type="text" id="qa-cat" placeholder="e.g. Cosmetic Dentist">
       </div>
       <div class="form-group" style="flex:1;">
         <label>City / Region</label>
-        <input type="text" id="qa-city" value="" placeholder="Delhi NCR">
+        <input type="text" id="qa-city" placeholder="e.g. Phoenix, AZ">
       </div>
     </div>
     <button class="btn btn-primary" id="btn-gen-qa">❓ Pre-Seed 5 High-Ranking Q&A Pairs</button>
     <div class="hint">Copy-paste into your Google Maps listing Q&A section to rank for conversational & voice searches.</div>
-    <div class="result-box" id="qa-results" style="display:none;"></div>
+    <div class="result-box" id="qa-results"></div>
   </div>
 
-  <!-- Tab 5: Policy & Dispute (Suspension Prevention) -->
+  <!-- Tab 9: Policy & Dispute -->
   <div id="tab-policy" class="tab-content">
     <div class="form-group">
-      <label>Business Title on Listing</label>
-      <input type="text" id="policy-biz" value="" placeholder="e.g. Bhardwaj Photo Studio">
+      <label>Business Name on Listing</label>
+      <input type="text" id="policy-biz" placeholder="e.g. Main Street Bakery">
     </div>
     <div class="form-group">
       <label>Review Text to Dispute (Optional)</label>
-      <textarea id="policy-review" rows="2" placeholder="Paste fake / attack review text here..."></textarea>
+      <textarea id="policy-review" rows="2" placeholder="Paste fake, competitor, or policy-violating review text here..."></textarea>
     </div>
     <button class="btn btn-primary" id="btn-audit-suspension">🛡️ Audit Suspension Risk</button>
     <button class="btn btn-purple" id="btn-gen-dispute">🚫 Draft Google Review Removal Ticket</button>
-    <div class="result-box" id="policy-results" style="display:none;"></div>
+    <div class="result-box" id="policy-results"></div>
   </div>
 
-  <!-- Tab 4: Teleport -->
+  <!-- Tab 10: Teleport -->
   <div id="tab-teleport" class="tab-content">
     <div class="form-group">
       <label>Search Query / Keyword</label>
-      <input type="text" id="teleport-query" value="" placeholder="e.g. photo studio near me, dentist">
+      <input type="text" id="teleport-query" placeholder="e.g. emergency plumber near me, dentist">
     </div>
     <div class="form-group">
-      <label>Coordinates (Lat, Lng) or City</label>
-      <input type="text" id="teleport-location" value="" placeholder="e.g. 28.6139, 77.2090 or Connaught Place">
-      <div class="hint">Simulates Google Maps search from target GPS coordinates.</div>
+      <label>Target Coordinates (Lat, Lng) or Landmark</label>
+      <input type="text" id="teleport-location" placeholder="e.g. 40.7128, -74.0060 or Times Square">
+      <div class="hint">Simulates Google Maps search from target GPS coordinates without a VPN.</div>
     </div>
     <button class="btn btn-primary" id="teleport-btn">📍 Launch Maps Teleport</button>
   </div>
 
-  <!-- Tab 5: Settings -->
+  <!-- Tab 11: Settings -->
   <div id="tab-settings" class="tab-content">
     <div class="form-group">
       <label>OpenRouter API Key (Powers all AI features)</label>
       <input type="password" id="openrouter-key" placeholder="sk-or-v1-...">
-      <div class="hint">Verified with Google Gemini 2.5 Flash.</div>
+      <div class="hint">Free & low-cost models via <a href="https://openrouter.ai/keys" target="_blank" style="color:#ea580c;text-decoration:none;">openrouter.ai/keys</a>.</div>
+    </div>
+    <div class="form-group">
+      <label>AI Intelligence Model</label>
+      <select id="openrouter-model">
+        <option value="google/gemini-2.5-flash">Google: Gemini 2.5 Flash (Ultra-Fast & Free/Low Cost)</option>
+        <option value="anthropic/claude-3.5-sonnet">Anthropic: Claude 3.5 Sonnet (Elite Quality & Strategy)</option>
+        <option value="openai/gpt-4o-mini">OpenAI: GPT-4o-mini (Fast & Versatile)</option>
+        <option value="deepseek/deepseek-chat">DeepSeek: DeepSeek-V3 (High Intelligence & Value)</option>
+      </select>
+      <div class="hint">Used for audits, post calendars, and cold outreach.</div>
     </div>
     <div class="form-group">
       <label>Sync / Webhook Server URL (Optional)</label>
       <input type="text" id="server-url" value="http://localhost:8080">
+      <div class="hint">Connect to OpenGMB self-hosted backend or CRM webhook.</div>
     </div>
     <div class="form-group">
       <label>Sync API Bearer Token (Optional)</label>
       <input type="password" id="api-token" placeholder="maprank_token_...">
-      <div class="hint">Optional: Connect to external backend or CRM endpoint</div>
     </div>
     <button class="btn btn-primary" id="save-settings-btn">Save Configuration</button>
     <button class="btn btn-secondary" id="test-conn-btn">Test Connection</button>
