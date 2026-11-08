@@ -1,0 +1,44 @@
+{
+  "manifest_version": 3,
+  "name": "MapRank Everywhere - Local SEO & Audit Engine",
+  "version": "2.0.0",
+  "description": "Professional Local SEO, Category Inspector, Map Pack Audits, Review Analysis, Teleport, and AI Optimization directly on Google Maps.",
+  "permissions": [
+    "storage",
+    "activeTab"
+  ],
+  "host_permissions": [
+    "https://*.google.com/maps/*",
+    "https://*.google.com/search*",
+    "https://openrouter.ai/*",
+    "http://localhost/*",
+    "http://127.0.0.1/*"
+  ],
+  "action": {
+    "default_popup": "popup.html",
+    "default_title": "MapRank Everywhere - Local SEO & Audits"
+  },
+  "content_scripts": [
+    {
+      "matches": [
+        "https://*.google.com/maps/*",
+        "https://*.google.com/search*"
+      ],
+      "js": ["injected.js"],
+      "world": "MAIN",
+      "run_at": "document_start"
+    },
+    {
+      "matches": [
+        "https://*.google.com/maps/*",
+        "https://*.google.com/search*"
+      ],
+      "js": ["content.js"],
+      "css": ["styles.css"],
+      "run_at": "document_end"
+    }
+  ],
+  "background": {
+    "service_worker": "background.js"
+  }
+}

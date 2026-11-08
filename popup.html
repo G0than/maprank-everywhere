@@ -1,0 +1,393 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>MapRank Everywhere - Local SEO & Audit Engine</title>
+  <style>
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+    body {
+      width: 400px;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+      font-size: 13px;
+      color: #202124;
+      background-color: #ffffff;
+      padding: 16px;
+    }
+    .header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      border-bottom: 1px solid #e8eaed;
+      padding-bottom: 10px;
+      margin-bottom: 12px;
+    }
+    .logo {
+      font-weight: 700;
+      font-size: 16px;
+      color: #f96535;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+    .badge-status {
+      font-size: 10px;
+      padding: 2px 6px;
+      border-radius: 10px;
+      background: #e6f4ea;
+      color: #137333;
+      font-weight: 600;
+    }
+    .tab-nav {
+      display: flex;
+      gap: 4px;
+      margin-bottom: 14px;
+      border-bottom: 1px solid #f1f3f4;
+      padding-bottom: 8px;
+      overflow-x: auto;
+    }
+    .tab-btn {
+      background: none;
+      border: none;
+      font-size: 11px;
+      font-weight: 600;
+      color: #5f6368;
+      cursor: pointer;
+      padding: 5px 8px;
+      border-radius: 4px;
+      white-space: nowrap;
+      transition: all 0.15s ease;
+    }
+    .tab-btn.active {
+      color: #f96535;
+      background: #fff4f0;
+    }
+    .tab-content {
+      display: none;
+    }
+    .tab-content.active {
+      display: block;
+    }
+    .form-group {
+      margin-bottom: 10px;
+    }
+    label {
+      display: block;
+      font-size: 11px;
+      font-weight: 600;
+      color: #5f6368;
+      text-transform: uppercase;
+      margin-bottom: 4px;
+    }
+    input[type="text"], input[type="password"], textarea, select {
+      width: 100%;
+      padding: 7px 10px;
+      border: 1px solid #dadce0;
+      border-radius: 6px;
+      font-size: 12px;
+      outline: none;
+      font-family: inherit;
+    }
+    input[type="text"]:focus, input[type="password"]:focus, textarea:focus, select:focus {
+      border-color: #f96535;
+    }
+    .btn {
+      width: 100%;
+      padding: 8px 12px;
+      border-radius: 6px;
+      font-size: 12px;
+      font-weight: 600;
+      cursor: pointer;
+      border: none;
+      transition: background-color 0.15s ease;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
+    }
+    .btn-primary {
+      background: #f96535;
+      color: #ffffff;
+    }
+    .btn-primary:hover {
+      background: #e05324;
+    }
+    .btn-secondary {
+      background: #f1f3f4;
+      color: #3c4043;
+      margin-top: 6px;
+    }
+    .btn-secondary:hover {
+      background: #e8eaed;
+    }
+    .btn-purple {
+      background: #9334e9;
+      color: #ffffff;
+      margin-top: 6px;
+    }
+    .btn-purple:hover {
+      background: #7e22ce;
+    }
+    .hint {
+      font-size: 11px;
+      color: #70757a;
+      margin-top: 3px;
+    }
+    .result-box {
+      margin-top: 10px;
+      padding: 10px;
+      background: #f8f9fa;
+      border: 1px solid #e8eaed;
+      border-radius: 6px;
+      font-size: 12px;
+      line-height: 1.45;
+      max-height: 180px;
+      overflow-y: auto;
+      white-space: pre-wrap;
+      word-break: break-word;
+    }
+  </style>
+</head>
+<body>
+  <div class="header">
+    <div class="logo">
+      <span>📍 MapRank Everywhere</span>
+    </div>
+    <span class="badge-status" id="conn-status">AI Ready</span>
+  </div>
+
+  <div class="tab-nav">
+    <button class="tab-btn active" data-tab="audit">Audit & Pitch</button>
+    <button class="tab-btn" data-tab="agency">💼 Agency & Outreach</button>
+    <button class="tab-btn" data-tab="agentos">⚡ Agent OS</button>
+    <button class="tab-btn" data-tab="fours">📊 4S Proof of Work</button>
+    <button class="tab-btn" data-tab="replies">Review Replies</button>
+    <button class="tab-btn" data-tab="posts">Google Posts</button>
+    <button class="tab-btn" data-tab="social">Social & Ads</button>
+    <button class="tab-btn" data-tab="qa">Q&A Pre-Seed</button>
+    <button class="tab-btn" data-tab="policy">Policy & Dispute</button>
+    <button class="tab-btn" data-tab="teleport">Teleport</button>
+    <button class="tab-btn" data-tab="settings">Settings</button>
+  </div>
+
+  <!-- Tab 1: Audit & Pitch -->
+  <div id="tab-audit" class="tab-content active">
+    <div class="form-group">
+      <label>Business Name</label>
+      <input type="text" id="audit-biz" value="" placeholder="e.g. Bhardwaj Photo Studio">
+    </div>
+    <div style="display:flex; gap:8px;">
+      <div class="form-group" style="flex:1;">
+        <label>Primary Category</label>
+        <input type="text" id="audit-cat" value="Photography Studio" placeholder="Photography Studio">
+      </div>
+      <div class="form-group" style="flex:1;">
+        <label>City / Area</label>
+        <input type="text" id="audit-city" value="" placeholder="Delhi NCR">
+      </div>
+    </div>
+    <button class="btn btn-primary" id="btn-run-audit">⚡ Run 100-Point Audit</button>
+    <button class="btn btn-purple" id="btn-gen-pitch">💼 Generate Client Retainer Pitch ($750/mo)</button>
+    <div class="result-box" id="audit-results" style="display:none;"></div>
+  </div>
+
+  <!-- Tab: 1-Person Agency & Outreach -->
+  <div id="tab-agency" class="tab-content">
+    <div class="form-group">
+      <label>Target Business Name</label>
+      <input type="text" id="agency-biz" value="" placeholder="e.g. Bhardwaj Photo Studio">
+    </div>
+    <div style="display:flex; gap:8px;">
+      <div class="form-group" style="flex:1;">
+        <label>Category</label>
+        <input type="text" id="agency-cat" value="Wedding Photography Studio" placeholder="e.g. Photography Studio">
+      </div>
+      <div class="form-group" style="flex:1;">
+        <label>City / Location</label>
+        <input type="text" id="agency-loc" value="" placeholder="e.g. Delhi">
+      </div>
+    </div>
+    <div class="form-group">
+      <label>Observed Listing Gap (e.g. missing secondary categories, stagnant reviews)</label>
+      <input type="text" id="agency-gap" value="Missing secondary categories: Wedding Photographer, Portrait Studio, Video Production Service" placeholder="Missing Wedding Photographer category">
+    </div>
+    <button class="btn btn-primary" id="btn-agency-coldemail" style="background:#059669;">📧 Generate Audit Cold Email (Instantly style)</button>
+    <button class="btn btn-secondary" id="btn-agency-upwork" style="margin-top:6px;">🏆 Write Winning Upwork Proposal</button>
+    <button class="btn btn-secondary" id="btn-agency-pricing" style="margin-top:6px;">💎 Calculate 3-Tier Retainer Package ($500/$1.5k/$3k)</button>
+    <button class="btn btn-secondary" id="btn-agency-closer" style="margin-top:6px;">📞 Sales Call Discovery Closing Script</button>
+    <div class="result-box" id="agency-results" style="display:none;"></div>
+  </div>
+
+  <!-- Tab: AI Agent OS -->
+  <div id="tab-agentos" class="tab-content">
+    <div class="form-group">
+      <label>Business Name</label>
+      <input type="text" id="agentos-biz" value="" placeholder="e.g. Bhardwaj Photo Studio">
+    </div>
+    <div class="form-group">
+      <label>Listing Signals / Raw Data</label>
+      <input type="text" id="agentos-data" value="Rating: 4.9, 85+ reviews, Top Services: Luxury Wedding, Pre-Wedding shoots, Candid Films" placeholder="Rating: 4.8, 42 reviews...">
+    </div>
+    <button class="btn btn-primary" id="btn-agentos-run" style="background:#7c3aed;">⚡ Run Observe-Think-Act Loop</button>
+    <div class="form-group" style="margin-top:12px;">
+      <label>🧠 Business Memory (Learned Client Rules & Brand Tone)</label>
+      <textarea id="agentos-memory-text" rows="3">Never mention passport photos or cheap rates. Brand tone: luxury, warm, emotional, authoritative. Priority keywords: best wedding photographer in Delhi NCR, pre-wedding shoot Delhi, candid cinematic wedding film.</textarea>
+      <button class="btn btn-secondary" id="btn-agentos-save-mem" style="margin-top:6px;">Save to Agent Memory</button>
+      <div id="agentos-mem-status" class="hint" style="color:#059669; font-weight:600; display:none; margin-top:4px;"></div>
+    </div>
+    <div class="result-box" id="agentos-results" style="display:none;"></div>
+  </div>
+
+  <!-- Tab: 4S Proof of Work & Showcase -->
+  <div id="tab-fours" class="tab-content">
+    <div class="form-group">
+      <label>Target Business Name</label>
+      <input type="text" id="fours-biz" value="" placeholder="e.g. Bhardwaj Photo Studio">
+    </div>
+    <div style="display:flex; gap:8px;">
+      <div class="form-group" style="flex:1;">
+        <label>Niche</label>
+        <input type="text" id="fours-niche" value="Luxury Wedding & Pre-Wedding Photography" placeholder="Wedding & Commercial Photography">
+      </div>
+      <div class="form-group" style="flex:1;">
+        <label>Market City</label>
+        <input type="text" id="fours-city" value="" placeholder="e.g. Mumbai / Delhi">
+      </div>
+    </div>
+    <button class="btn btn-primary" id="btn-fours-teardown" style="background:#0284c7;">📊 Generate Proof-of-Work Teardown Case Study</button>
+    <button class="btn btn-secondary" id="btn-fours-blueprint" style="margin-top:6px;">🚀 Generate 4S $10k/Month Scaling Blueprint</button>
+    <div class="result-box" id="fours-results" style="display:none;"></div>
+  </div>
+
+  <!-- Tab 2: Review Replies -->
+  <div id="tab-replies" class="tab-content">
+    <div style="display:flex; gap:8px;">
+      <div class="form-group" style="flex:2;">
+        <label>Business Name</label>
+        <input type="text" id="reply-biz" value="" placeholder="Your Business Name">
+      </div>
+      <div class="form-group" style="flex:1;">
+        <label>Stars</label>
+        <select id="reply-stars">
+          <option value="5" selected>5 ★★★★★</option>
+          <option value="4">4 ★★★★</option>
+          <option value="3">3 ★★★</option>
+          <option value="2">2 ★★</option>
+          <option value="1">1 ★</option>
+        </select>
+      </div>
+    </div>
+    <div class="form-group">
+      <label>Customer Review</label>
+      <textarea id="reply-text" rows="2">Bhardwaj Photo Studio made our wedding day unforgettable! The team was punctual, candid shots captured pure emotion, and our wedding album is truly breathtaking.</textarea>
+    </div>
+    <button class="btn btn-primary" id="btn-gen-reply">🤖 Generate 3 Smart Replies</button>
+    <div class="result-box" id="reply-results" style="display:none;"></div>
+  </div>
+
+  <!-- Tab 3: Google Posts -->
+  <div id="tab-posts" class="tab-content">
+    <div class="form-group">
+      <label>Business Name</label>
+      <input type="text" id="posts-biz" value="" placeholder="Your Business Name">
+    </div>
+    <div class="form-group">
+      <label>Special Promotion or Topic</label>
+      <input type="text" id="posts-promo" value="" placeholder="e.g. 15% off Wedding & Pre-wedding packages">
+    </div>
+    <button class="btn btn-primary" id="btn-gen-posts">📝 Generate 4-Week Post Calendar</button>
+    <div class="result-box" id="posts-results" style="display:none;"></div>
+  </div>
+
+  <!-- Tab: Social & Ads Intelligence -->
+  <div id="tab-social" class="tab-content">
+    <div class="form-group">
+      <label>Business / Brand Name</label>
+      <input type="text" id="social-biz" value="" placeholder="Your Business Name">
+    </div>
+    <div class="form-group">
+      <label>5-Star Review or Client Win to Repurpose</label>
+      <textarea id="social-win" rows="2">Best wedding photographer in Delhi NCR! Our candid wedding film and photo album brought tears to our eyes. Highly recommend Bhardwaj Photo Studio for every couple!</textarea>
+    </div>
+    <button class="btn btn-primary" id="btn-repurpose-social">📱 Repurpose to Reels, TikTok & Carousel</button>
+    <button class="btn btn-purple" id="btn-spy-ads">🎯 Competitor Ad Library Teardown</button>
+    <div class="result-box" id="social-results" style="display:none;"></div>
+  </div>
+
+  <!-- Tab 4: Q&A Pre-Seed Strategy -->
+  <div id="tab-qa" class="tab-content">
+    <div class="form-group">
+      <label>Business Name</label>
+      <input type="text" id="qa-biz" value="" placeholder="Your Business Name">
+    </div>
+    <div style="display:flex; gap:8px;">
+      <div class="form-group" style="flex:1;">
+        <label>Primary Category</label>
+        <input type="text" id="qa-cat" value="" placeholder="Photography Studio">
+      </div>
+      <div class="form-group" style="flex:1;">
+        <label>City / Region</label>
+        <input type="text" id="qa-city" value="" placeholder="Delhi NCR">
+      </div>
+    </div>
+    <button class="btn btn-primary" id="btn-gen-qa">❓ Pre-Seed 5 High-Ranking Q&A Pairs</button>
+    <div class="hint">Copy-paste into your Google Maps listing Q&A section to rank for conversational & voice searches.</div>
+    <div class="result-box" id="qa-results" style="display:none;"></div>
+  </div>
+
+  <!-- Tab 5: Policy & Dispute (Suspension Prevention) -->
+  <div id="tab-policy" class="tab-content">
+    <div class="form-group">
+      <label>Business Title on Listing</label>
+      <input type="text" id="policy-biz" value="" placeholder="e.g. Bhardwaj Photo Studio">
+    </div>
+    <div class="form-group">
+      <label>Review Text to Dispute (Optional)</label>
+      <textarea id="policy-review" rows="2" placeholder="Paste fake / attack review text here..."></textarea>
+    </div>
+    <button class="btn btn-primary" id="btn-audit-suspension">🛡️ Audit Suspension Risk</button>
+    <button class="btn btn-purple" id="btn-gen-dispute">🚫 Draft Google Review Removal Ticket</button>
+    <div class="result-box" id="policy-results" style="display:none;"></div>
+  </div>
+
+  <!-- Tab 4: Teleport -->
+  <div id="tab-teleport" class="tab-content">
+    <div class="form-group">
+      <label>Search Query / Keyword</label>
+      <input type="text" id="teleport-query" value="" placeholder="e.g. photo studio near me, dentist">
+    </div>
+    <div class="form-group">
+      <label>Coordinates (Lat, Lng) or City</label>
+      <input type="text" id="teleport-location" value="" placeholder="e.g. 28.6139, 77.2090 or Connaught Place">
+      <div class="hint">Simulates Google Maps search from target GPS coordinates.</div>
+    </div>
+    <button class="btn btn-primary" id="teleport-btn">📍 Launch Maps Teleport</button>
+  </div>
+
+  <!-- Tab 5: Settings -->
+  <div id="tab-settings" class="tab-content">
+    <div class="form-group">
+      <label>OpenRouter API Key (Powers all AI features)</label>
+      <input type="password" id="openrouter-key" placeholder="sk-or-v1-...">
+      <div class="hint">Verified with Google Gemini 2.5 Flash.</div>
+    </div>
+    <div class="form-group">
+      <label>Sync / Webhook Server URL (Optional)</label>
+      <input type="text" id="server-url" value="http://localhost:8080">
+    </div>
+    <div class="form-group">
+      <label>Sync API Bearer Token (Optional)</label>
+      <input type="password" id="api-token" placeholder="maprank_token_...">
+      <div class="hint">Optional: Connect to external backend or CRM endpoint</div>
+    </div>
+    <button class="btn btn-primary" id="save-settings-btn">Save Configuration</button>
+    <button class="btn btn-secondary" id="test-conn-btn">Test Connection</button>
+    <div id="settings-msg" class="hint" style="margin-top: 8px;"></div>
+  </div>
+
+  <script src="popup.js"></script>
+</body>
+</html>

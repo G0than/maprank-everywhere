@@ -1,0 +1,21 @@
+# OS
+.DS_Store
+Thumbs.db
+
+# Node (if ever bundled)
+node_modules/
+dist/
+*.zip
+
+# Secrets — NEVER commit your API key
+.env
+*.env.local
+secrets.json
+
+# IDE
+.vscode/
+.idea/
+
+# Build artifacts
+*.crx
+*.pem
